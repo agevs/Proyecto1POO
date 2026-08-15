@@ -1,0 +1,96 @@
+:root {
+    --uvg-green: #208454;
+    --uvg-dark-green: #175d3c;
+    --uvg-bg-light: #f4f6f5;
+    --uvg-sidebar: #2c3e50;
+    --text-main: #333333;
+    --border-color: #dcdcdc;
+
+    /* Colores de Estados de Cursos / STAFF */
+    --status-warning-bg: #fef3c7;
+    --status-warning-text: #92400e;
+    --status-success-bg: #d1fae5;
+    --status-success-text: #065f46;
+    --status-danger-bg: #fee2e2;
+    --status-danger-bg: #991b1b;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--uvg-bg-light);
+    color: var(--text-main);
+}
+
+/* Pantalla de Carga Institucional */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--uvg-green);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: pcacity 0.5s ease;
+}
+
+.splah-logo {
+    color: #ffffff;
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* Estilos de Botones Personalizados */
+.btn-uvg {
+    background-color: var(--uvg-green);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.2s;
+}
+
+.btn-uvg:hover {
+    backgroung-color: var(--uvg-dark-green);
+}
+
+/* Tablas y Componentes de Iteración 3 */
+.table-custom {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    margin-top: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.table-custom th, .table-custom td {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.table-custom th {
+    background-color: #4a777a; /* Tono de cabecera de catálogo UVG */
+    color: white;
+}
+
+/* Insignias de Estado */
+.badge-status {
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: inline-block;
+}
+.bagde-warning { background-color: var(--status-warning-bg); color: var(--status-warning-text); }
+.bagde-warning { background-color: var(--status-success-bg); color: var(--status-success-text); }
+.bagde-warning { background-color: var(--status-danger-bg); color: var(--status-danger-text); }

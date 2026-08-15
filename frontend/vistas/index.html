@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal y Asignaciones - UVG</title>
+    <!-- Ruta de estilos corregida directamente a la raíz -->
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        /* Estilos de control de vistas interno */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. VISTA INICIAL: Portal de Servicios Académicos -->
+    <div id="portal-view" class="view-section active">
+        <div style="background-color: #ffffff; border-bottom: 3px solid var(--uvg-green); padding: 15px;">
+            <h2>UNIVERSIDAD DEL VALLE DE GUATEMALA</h2>
+            <p>Portal de Servicios Académicos en Línea</p>
+        </div>
+        <div style="padding: 40px; text-align: center;">
+            <h3>Servicios para estudiantes</h3>
+            <p>Para asignarte cursos haz clic en el siguiente enlace:</p>
+            <a href="#" id="link-asignaciones" style="color: #2a6496; font-weight: bold; font-size: 1.1rem; cursor: pointer;">
+                asignaciones.uvg.edu.gt
+            </a>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">(El servicio está disponible desde las 6:00am hasta las 11:00pm)</p>
+        </div>
+    </div>
+
+    <!-- 2. VISTA INTERMEDIA: Pantalla de Carga Institucional (Splash) -->
+    <div id="splash-view" class="view-section" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--uvg-green); display: none; justify-content: center; align-items: center; z-index: 9999;">
+        <div style="color: #ffffff; font-size: 3rem; font-weight: bold; letter-spacing: 2px;">
+            <span style="border: 2px solid white; padding: 5px 10px;">U</span>VG
+        </div>
+    </div>
+
+    <!-- 3. VISTA PRINCIPAL: Panel de Asignaciones y Catálogo (Iteración 3) -->
+    <div id="dashboard-view" class="view-section" style="min-height: 100vh; display: none;">
+        <div style="display: flex; min-height: 100vh;">
+            <!-- Barra Lateral -->
+            <div style="width: 260px; background-color: var(--uvg-sidebar); color: white; padding: 20px;">
+                <h3>AVILÉS GONZÁLEZ, MARGARITA DE LOS ANGELES</h3>
+                <p style="font-size: 0.8rem; opacity: 0.8;">26594</p>
+                <hr style="border-color: rgba(255,255,255,0.2);">
+                <ul style="list-style: none; padding: 0; margin-top: 20px;">
+                    <li style="padding: 10px 0; background: rgba(255,255,255,0.1); padding-left: 10px; border-radius: 4px;">Asignación de Cursos</li>
+                </ul>
+            </div>
+
+            <!-- Contenido del Dashboard -->
+            <div style="flex-grow: 1; padding: 30px; background: #ffffff;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 15px;">
+                    <h2>Asignación de cursos</h2>
+                    <button class="btn-uvg" id="btn-abrir-catalogo">ASIGNACIÓN DE CURSOS</button>
+                </div>
+
+                <div style="margin-top: 20px; background: #f9f9f9; padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px;">
+                    <h4>Asignación 2026 ciclo 2 CAMPUS CENTRAL</h4>
+                    <p><strong>Carrera:</strong> 7010 - LICENCIATURA EN INGENIERÍA EN CIENCIA DE LA COMPUTACIÓN Y TECNOLOGÍAS DE LA INFORMACIÓN</p>
+                    <p><strong>Carga máxima:</strong> Puede asignarse un máximo de 9 cursos</p>
+                </div>
+
+                <!-- Catálogo General (Iteración 3) -->
+                <div id="modal-catalogo-general" style="display: none; margin-top: 30px; background: #fff; border: 1px solid #ccc; padding: 20px; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <div style="display: flex; border-bottom: 2px solid #ddd; margin-bottom: 15px;">
+                        <div style="padding: 10px 20px; font-weight: bold; border-bottom: 3px solid var(--uvg-green);">Catálogo General</div>
+                        <div style="padding: 10px 20px; color: #666;">Mis Alertas (2)</div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <input type="text" placeholder="Buscar curso: [ Programación ]" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>CÓDIGO</th>
+                                <th>CURSO (con horario)</th>
+                                <th>SECCIÓN</th>
+                                <th>CATEDRÁTICO</th>
+                                <th>ESTADO (Detallado)</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CC2008</td>
+                                <td>Programación Orientada a Objetos 1<br><small>(Lu 10:00 AM / Mi 10:00 AM)</small></td>
+                                <td>Sección 10</td>
+                                <td>STAFF</td>
+                                <td><span class="badge-status badge-warning">Docente en confirmación</span></td>
+                                <td>
+                                    <button style="padding: 5px 8px; font-size: 0.8rem;">Ver Ficha</button>
+                                    <button class="btn-uvg" style="padding: 5px 8px; font-size: 0.8rem;">🔔 Seguir</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>CC2008</td>
+                                <td>Programación Orientada a Objetos 1<br><small>(Lu 10:00 AM / Mi 10:00 AM)</small></td>
+                                <td>Sección 10</td>
+                                <td>STAFF</td>
+                                <td><span class="badge-status badge-success">Confirmado (Prof. Juan Pérez)</span></td>
+                                <td>
+                                    <button style="padding: 5px 8px; font-size: 0.8rem;">Ver Ficha</button>
+                                    <button class="btn-uvg" style="padding: 5px 8px; font-size: 0.8rem;">🔔 Seguir</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Control -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const linkAsignaciones = document.getElementById("link-asignaciones");
+            const portalView = document.getElementById("portal-view");
+            const splashView = document.getElementById("splash-view");
+            const dashboardView = document.getElementById("dashboard-view");
+            const btnAbrirCatalogo = document.getElementById("btn-abrir-catalogo");
+            const modalCatalogo = document.getElementById("modal-catalogo-general");
+
+            // Flujo: Clic en enlace del portal -> Muestra Splash verde -> Muestra Dashboard
+            linkAsignaciones.addEventListener("click", (e) => {
+                e.preventDefault();
+                portalView.style.display = "none";
+                splashView.style.display = "flex";
+
+                setTimeout(() => {
+                    splashView.style.display = "none";
+                    dashboardView.style.display = "block";
+                }, 1500);
+            });
+
+            // Control del botón de Catálogo General (Iteración 3)
+            btnAbrirCatalogo.addEventListener("click", () => {
+                if (modalCatalogo.style.display === "none" || modalCatalogo.style.display === "") {
+                    modalCatalogo.style.display = "block";
+                    modalCatalogo.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    modalCatalogo.style.display = "none";
+                }
+            });
+        });
+    </script>
+</body>
+</html>

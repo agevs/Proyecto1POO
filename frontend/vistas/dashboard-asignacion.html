@@ -1,0 +1,77 @@
+<!-- dashboard-asignacion.html -->
+<div id="dashboard-view" style="display: none; display: flex; min-height: 100vh;">
+    <!-- Barra Lateral Estilo UVG -->
+    <div style="width: 260px; background-color: var(--uvg-sidebar); color: white; padding: 20px;">
+        <h3>AVILÉS GONZÁLEZ, MARGARITA DE LOS ANGELES</h3>
+        <p style="font-size: 0.8rem; opacity: 0.8;">26594</p>
+        <hr style="border-color: rgba(255,255,255,0.2);">
+        <ul style="list-style: none; padding: 0; margin-top: 20px;">
+            <li style="padding: 10px 0; background: rgba(255,255,255,0.1); padding-left: 10px; border-radius: 4px;">Asignación de Cursos</li>
+        </ul>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div style="flex-grow: 1; padding: 30px; background: #ffffff;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 15px;">
+            <h2>Asignación de cursos</h2>
+            <button class="btn-uvg" id="btn-abrir-catalogo">ASIGNACIÓN DE CURSOS</button>
+        </div>
+
+        <div style="margin-top: 20px; background: #f9f9f9; padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px;">
+            <h4>Asignación 2026 ciclo 2 CAMPUS CENTRAL</h4>
+            <p><strong>Carrera:</strong> 7010 - LICENCIATURA EN INGENIERÍA EN CIENCIA DE LA COMPUTACIÓN Y TECNOLOGÍAS DE LA INFORMACIÓN</p>
+            <p><strong>Carga máxima:</strong> Puede asignarse un máximo de 9 cursos</p>
+        </div>
+
+        <!-- CONTENEDOR DE LA ITERACIÓN 3: CATÁLOGO GENERAL Y GESTIÓN DE ALERTAS (Se muestra al presionar el botón) -->
+        <div id="modal-catalogo-general" style="display: none; margin-top: 30px; background: #fff; border: 1px solid #ccc; padding: 20px; border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <div style="display: flex; border-bottom: 2px solid #ddd; margin-bottom: 15px;">
+                <div style="padding: 10px 20px; font-weight: bold; border-bottom: 3px solid var(--uvg-green); cursor: pointer;">Catálogo General</div>
+                <div style="padding: 10px 20px; color: #666; cursor: pointer;">Mis Alertas (2)</div>
+            </div>
+
+            <!-- Barra de Búsqueda -->
+            <div style="margin-bottom: 15px;">
+                <input type="text" placeholder="Buscar curso: [ Programación ]" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <!-- Tabla Centralizada con Estados Específicos de STAFF (Iteración 3) -->
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>CÓDIGO</th>
+                        <th>CURSO (con horario)</th>
+                        <th>SECCIÓN</th>
+                        <th>CATEDRÁTICO</th>
+                        <th>ESTADO (Detallado)</th>
+                        <th>ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CC2008</td>
+                        <td>Programación Orientada a Objetos 1<br><small>(Lu 10:00 AM / Mi 10:00 AM)</small></td>
+                        <td>Sección 10</td>
+                        <td>STAFF</td>
+                        <td><span class="badge-status badge-warning">Docente en confirmación</span></td>
+                        <td>
+                            <button style="padding: 5px 8px; font-size: 0.8rem;">Ver Ficha</button>
+                            <button class="btn-uvg" style="padding: 5px 8px; font-size: 0.8rem;">🔔 Seguir</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>CC2008</td>
+                        <td>Programación Orientada a Objetos 1<br><small>(Lu 10:00 AM / Mi 10:00 AM)</small></td>
+                        <td>Sección 10</td>
+                        <td>STAFF</td>
+                        <td><span class="badge-status badge-success">Confirmado (Prof. Juan Pérez)</span></td>
+                        <td>
+                            <button style="padding: 5px 8px; font-size: 0.8rem;">Ver Ficha</button>
+                            <button class="btn-uvg" style="padding: 5px 8px; font-size: 0.8rem;">🔔 Seguir</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
