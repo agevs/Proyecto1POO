@@ -2,6 +2,7 @@ package com.uvg.proyectoasignaciones.api;
 
 import java.util.ArrayList;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,7 @@ import com.uvg.proyectoasignaciones.controller.CursoController;
 import com.uvg.proyectoasignaciones.model.Curso;
 import com.uvg.proyectoasignaciones.model.Seccion;
 
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 @RestController
 @RequestMapping("/api/cursos")
 public class CursoRestController {
