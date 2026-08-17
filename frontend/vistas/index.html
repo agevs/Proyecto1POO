@@ -84,29 +84,8 @@
                                 <th>ACCIONES</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>CC2008</td>
-                                <td>Programación Orientada a Objetos 1<br><small>(Lu 10:00 AM / Mi 10:00 AM)</small></td>
-                                <td>Sección 10</td>
-                                <td>STAFF</td>
-                                <td><span class="badge-status badge-warning">Docente en confirmación</span></td>
-                                <td>
-                                    <button style="padding: 5px 8px; font-size: 0.8rem;">Ver Ficha</button>
-                                    <button class="btn-uvg" style="padding: 5px 8px; font-size: 0.8rem;">🔔 Seguir</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>CC2008</td>
-                                <td>Programación Orientada a Objetos 1<br><small>(Lu 10:00 AM / Mi 10:00 AM)</small></td>
-                                <td>Sección 10</td>
-                                <td>STAFF</td>
-                                <td><span class="badge-status badge-success">Confirmado (Prof. Juan Pérez)</span></td>
-                                <td>
-                                    <button style="padding: 5px 8px; font-size: 0.8rem;">Ver Ficha</button>
-                                    <button class="btn-uvg" style="padding: 5px 8px; font-size: 0.8rem;">🔔 Seguir</button>
-                                </td>
-                            </tr>
+                        <tbody id="tabla-cursos-body">
+                            <!-- Los cursos se cargarán desde el backend -->
                         </tbody>
                     </table>
                 </div>
@@ -147,5 +126,6 @@
             });
         });
     </script>
+    <script src="../js/app.js"></script>
 </body>
 </html>
