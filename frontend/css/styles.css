@@ -12,7 +12,7 @@
     --status-success-bg: #d1fae5;
     --status-success-text: #065f46;
     --status-danger-bg: #fee2e2;
-    --status-danger-bg: #991b1b;
+    --status-danger-text: #991b1b;
 }
 
 body {
@@ -35,10 +35,10 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 9999;
-    transition: pcacity 0.5s ease;
+    transition: opacity 0.5s ease;
 }
 
-.splah-logo {
+.splash-logo {
     color: #ffffff;
     font-size: 3rem;
     font-weight: bold;
@@ -59,7 +59,7 @@ body {
 }
 
 .btn-uvg:hover {
-    backgroung-color: var(--uvg-dark-green);
+    background-color: var(--uvg-dark-green);
 }
 
 /* Tablas y Componentes de Iteración 3 */
@@ -91,6 +91,17 @@ body {
     font-weight: bold;
     display: inline-block;
 }
-.bagde-warning { background-color: var(--status-warning-bg); color: var(--status-warning-text); }
-.bagde-warning { background-color: var(--status-success-bg); color: var(--status-success-text); }
-.bagde-warning { background-color: var(--status-danger-bg); color: var(--status-danger-text); }
+.badge-warning {
+    background-color: var(--status-warning-bg);
+    color: var(--status-warning-text);
+}
+
+.badge-success {
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
+}
+
+.badge-danger {
+    background-color: var(--status-danger-bg);
+    color: var(--status-danger-text);
+}
