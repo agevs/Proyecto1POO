@@ -1,11 +1,34 @@
 package com.uvg.proyectoasignaciones.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
+
+@Entity
+@Table(name = "seguimientos")
+
 public class Seguimiento {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idSeguimiento;
+
+    @ManyToOne
+    @JoinColumn(name = "estudiante_id")
     private Estudiante estudiante;
+
+    @ManyToOne
+    @JoinColumn(name = "seccion_id")
     private Seccion seccion;
     private boolean activo;
 
+    public Seguimiento() {
+    }
+    
     public Seguimiento(int idSeguimiento, Estudiante estudiante, Seccion seccion) {
         this.idSeguimiento = idSeguimiento;
         this.estudiante = estudiante;
