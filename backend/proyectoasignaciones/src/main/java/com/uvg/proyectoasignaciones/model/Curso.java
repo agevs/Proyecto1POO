@@ -1,11 +1,28 @@
 package com.uvg.proyectoasignaciones.model;
+
 import java.util.ArrayList;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+
+@Entity
 public class Curso {
+
+    @Id
     private String codigoCurso;
+
     private String nombreCurso;
     private int creditos;
+
+    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
     private ArrayList<Seccion> secciones;
+
+    // Constructor vacío requerido por JPA/Hibernate
+    public Curso() {
+        this.secciones = new ArrayList<>();
+    }
 
     public Curso(String codigoCurso, String nombreCurso, int creditos) {
         this.codigoCurso = codigoCurso;
@@ -16,10 +33,12 @@ public class Curso {
 
     public void agregarSeccion(Seccion seccion) {
         secciones.add(seccion);
+        seccion.setCurso(this);
     }
 
     public void eliminarSeccion(Seccion seccion) {
         secciones.remove(seccion);
+        seccion.setCurso(null);
     }
 
     public String getCodigoCurso() {
@@ -62,6 +81,5 @@ public class Curso {
                 ", creditos=" + creditos +
                 ", cantidadSecciones=" + secciones.size() +
                 '}';
-    }   
-    
+    }
 }
