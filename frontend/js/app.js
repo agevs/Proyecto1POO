@@ -8,37 +8,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabAlertas = document.getElementById("tab-alertas");
 
     // NAVEGACIÓN HACIA ASIGNACIONES
-    // Si estamos en el index y se hace clic en Asignaciones
     if (linkAsignaciones) {
         linkAsignaciones.addEventListener("click", (e) => {
             e.preventDefault();
-
-            // Redirige a la pantalla de carga
             window.location.href = "splash.html";
         });
     }
+
     // ABRIR / CERRAR CATÁLOGO GENERAL
     if (btnAbrirCatalogo && modalCatalogo) {
-
         btnAbrirCatalogo.addEventListener("click", () => {
-
             if (
                 modalCatalogo.style.display === "none" ||
                 modalCatalogo.style.display === ""
             ) {
-
                 modalCatalogo.style.display = "block";
-
                 modalCatalogo.scrollIntoView({
                     behavior: "smooth"
                 });
-
             } else {
-
                 modalCatalogo.style.display = "none";
             }
         });
     }
+
     // CARGAR CURSOS DESDE SPRING BOOT
     cargarCursos();
     configurarPestanas(tabCatalogo, tabAlertas);
@@ -46,135 +39,94 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // OBTENER CURSOS DEL BACKEND
-
 async function cargarCursos() {
-
     try {
-
-        const respuesta = await fetch(
-            "http://localhost:8080/api/cursos"
-        );
+        const respuesta = await fetch("http://localhost:8080/api/cursos");
 
         if (!respuesta.ok) {
-            throw new Error(
-                "No se pudieron obtener los cursos"
-            );
+            throw new Error("No se pudieron obtener los cursos");
         }
 
-        // Convierte la respuesta JSON en objetos JavaScript
         const cursos = await respuesta.json();
-
         console.log("Cursos recibidos:", cursos);
-
-        // Enviar los cursos a la función que construye la tabla
         mostrarCursos(cursos);
 
     } catch (error) {
-
-        console.error(
-            "Error al cargar cursos:",
-            error
-        );
+        console.error("Error al cargar cursos:", error);
     }
 }
 
 // MOSTRAR CURSOS EN LA TABLA
-
 function mostrarCursos(cursos) {
+    const tabla = document.getElementById("tabla-cursos-body");
 
-    const tabla = document.getElementById(
-        "tabla-cursos-body"
-    );
-
-    // Si estamos en una página que no tiene la tabla,
-    // simplemente no hacemos nada.
     if (!tabla) {
         return;
     }
 
-    // Limpiar cualquier contenido anterior
     tabla.innerHTML = "";
 
-
-    // Recorrer todos los cursos recibidos
     cursos.forEach(curso => {
-
-        // Cada curso puede tener varias secciones
         curso.secciones.forEach(seccion => {
-
             const fila = document.createElement("tr");
 
-            // DOCENTE
-
-            // Si todavía no existe docente, mostrar STAFF
             const nombreDocente = seccion.docente
                 ? seccion.docente.nombre
                 : "STAFF";
 
-            // ESTADO
-
-            // Determinar qué estilo utilizar según el estado
             const claseEstado =
                 seccion.estado === "Confirmado"
                     ? "badge-success"
                     : "badge-warning";
 
-            // CONSTRUIR FILA
-
             fila.innerHTML = `
-
-                <td>
-                    ${curso.codigoCurso}
-                </td>
-
+                <td>${curso.codigoCurso}</td>
                 <td>
                     ${curso.nombreCurso}
                     <br>
-                    <small>
-                        ${seccion.horario}
-                    </small>
+                    <small>${seccion.horario}</small>
                 </td>
-
-                <td>
-                    Sección ${seccion.numeroSeccion}
-                </td>
-
-                <td>
-                    ${nombreDocente}
-                </td>
-
+                <td>Sección ${seccion.numeroSeccion}</td>
+                <td>${nombreDocente}</td>
                 <td>
                     <span class="badge-status ${claseEstado}">
                         ${seccion.estado}
                     </span>
                 </td>
-
                 <td>
-
                     <button
                         class="btn-ver-ficha"
                         data-codigo="${curso.codigoCurso}"
                         data-seccion="${seccion.numeroSeccion}">
                         Ver Ficha
                     </button>
-
                     <button
                         class="btn-uvg btn-seguir"
                         data-codigo="${curso.codigoCurso}"
                         data-seccion="${seccion.numeroSeccion}">
                         🔔 Seguir
                     </button>
-
                 </td>
             `;
 
-
-            // Agregar la fila a la tabla
             tabla.appendChild(fila);
+        });
+    });
+
+    // RF-04: Escuchador de eventos para los botones de seguir
+    const botonesSeguir = tabla.querySelectorAll(".btn-seguir");
+
+    botonesSeguir.forEach(boton => {
+        boton.addEventListener("click", async (e) => {
+            const codigoCurso = e.target.getAttribute("data-codigo");
+            const numeroSeccion = e.target.getAttribute("data-seccion");
+            
+            await seguirSeccion(codigoCurso, numeroSeccion, e.target);
         });
     });
 }
 
+HEAD
 // RF-07: CONSULTAR Y MOSTRAR NOTIFICACIONES
 
 function configurarPestanas(tabCatalogo, tabAlertas) {
@@ -294,5 +246,41 @@ async function marcarNotificacionComoLeida(idNotificacion) {
         await cargarNotificaciones();
     } catch (error) {
         console.error("Error al marcar la notificación:", error);
+    }
+}
+
+// RF-04: Petición POST al backend para registrar el seguimiento de la secciónasync function seguirSeccion(codigoCurso, numeroSeccion, botonElemento) {
+async function seguirSeccion(codigoCurso, numeroSeccion, botonElemento) {
+    const idEstudiante = 26594;   
+
+    try {
+        const respuesta = await fetch(`http://localhost:8080/api/seguimientos`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                carnetEstudiante: idEstudiante,
+                codigoCurso: codigoCurso,
+                seccion: parseInt(numeroSeccion)
+            })
+        });
+
+        if (!respuesta.ok) {
+            throw new Error("No se pudo registrar el seguimiento de la sección.");
+        }
+
+        const resultado = await respuesta.json();
+        console.log("Seguimiento exitoso:", resultado);
+
+        //Actualización visual
+        botonElemento.textContent = "🔔 Siguiendo";
+        botonElemento.style.backgroundColor = "var(--uvg-dark-green)";
+        botonElemento.disabled = true;
+
+        alert(`Has comenzado a seguir exitosamente la sección ${numeroSeccion} del curso ${codigoCurso}`);
+    } catch (error) {
+        console.error("Error en la solicitud de seguimiento", error);
+        alert("Ocurrió un error al intentar seguir la sección. Inténtalo de nuevo.");
     }
 }
