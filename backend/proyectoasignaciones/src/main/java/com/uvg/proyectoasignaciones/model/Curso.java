@@ -1,6 +1,7 @@
 package com.uvg.proyectoasignaciones.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -17,7 +18,7 @@ public class Curso {
     private int creditos;
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
-    private ArrayList<Seccion> secciones;
+    private List<Seccion> secciones;
 
     // Constructor vacío requerido por JPA/Hibernate
     public Curso() {
@@ -65,11 +66,11 @@ public class Curso {
         this.creditos = creditos;
     }
 
-    public ArrayList<Seccion> getSecciones() {
+    public List<Seccion> getSecciones() {
         return secciones;
     }
 
-    public void setSecciones(ArrayList<Seccion> secciones) {
+    public void setSecciones(List<Seccion> secciones) {
         this.secciones = secciones;
     }
 
