@@ -1,74 +1,61 @@
 package com.uvg.proyectoasignaciones.controller;
-import java.util.ArrayList;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
 
 import com.uvg.proyectoasignaciones.model.Estudiante;
 import com.uvg.proyectoasignaciones.model.Notificacion;
 import com.uvg.proyectoasignaciones.model.Seccion;
+import com.uvg.proyectoasignaciones.repository.NotificacionRepository;
 
+@Service
 public class NotificacionController {
-    private ArrayList<Notificacion> notificaciones;
 
-    public NotificacionController(ArrayList<Notificacion> notificaciones) {
-        this.notificaciones = notificaciones;
+    private final NotificacionRepository notificacionRepository;
+
+    public NotificacionController(NotificacionRepository notificacionRepository) {
+        this.notificacionRepository = notificacionRepository;
     }
 
-    public Notificacion crearNotificacion(
-            Estudiante estudiante,
-            Seccion seccion,
-            String mensaje) {
-
-        int nuevoId = notificaciones.size() + 1;
-        String fecha = java.time.LocalDateTime.now().toString();
-
-        Notificacion nuevaNotificacion =
-                new Notificacion(nuevoId, mensaje, fecha, seccion);
-
-        notificaciones.add(nuevaNotificacion);
-        estudiante.agregarNotificacion(nuevaNotificacion);
-
-        return nuevaNotificacion;
-    }
-
-    public ArrayList<Notificacion> obtenerNotificaciones(
-            Estudiante estudiante) {
-
-        return estudiante.getNotificaciones();
-    }
-
-    public ArrayList<Notificacion> obtenerNotificacionesNoLeidas(
-            Estudiante estudiante) {
-
-        ArrayList<Notificacion> resultado = new ArrayList<>();
-
-        for (Notificacion notificacion : estudiante.getNotificaciones()) {
-
-            if (!notificacion.isLeida()) {
-                resultado.add(notificacion);
-            }
+    public Notificacion crearNotificacion(Estudiante estudiante, Seccion seccion, String mensaje) {
+        if (estudiante == null || mensaje == null || mensaje.isBlank()) {
+            throw new IllegalArgumentException("El estudiante y el mensaje son obligatorios");
         }
 
-        return resultado;
+        Notificacion notificacion = new Notificacion(
+                estudiante.getCarne(), mensaje.trim(), LocalDateTime.now().toString(), seccion);
+        return notificacionRepository.save(notificacion);
     }
 
-    public void marcarComoLeida(Notificacion notificacion) {
-
-        if (notificacion != null) {
-            notificacion.marcarComoLeida();
+    public List<Notificacion> obtenerNotificaciones(Estudiante estudiante) {
+        if (estudiante == null) {
+            return List.of();
         }
+        return notificacionRepository
+                .findByEstudianteCarneOrderByIdNotificacionDesc(estudiante.getCarne());
     }
 
-    public ArrayList<Notificacion> getNotificaciones() {
-        return notificaciones;
+    public List<Notificacion> obtenerNotificacionesNoLeidas(Estudiante estudiante) {
+        if (estudiante == null) {
+            return List.of();
+        }
+        return notificacionRepository
+                .findByEstudianteCarneAndLeidaFalseOrderByIdNotificacionDesc(estudiante.getCarne());
     }
 
-    public void setNotificaciones(ArrayList<Notificacion> notificaciones) {
-        this.notificaciones = notificaciones;
-    }
+    public Optional<Notificacion> marcarComoLeida(int idNotificacion, Estudiante estudiante) {
+        if (estudiante == null) {
+            return Optional.empty();
+        }
 
-    @Override
-    public String toString() {
-        return "NotificacionController{" +
-                "cantidadNotificaciones=" + notificaciones.size() +
-                '}';
+        return notificacionRepository.findById(idNotificacion)
+                .filter(notificacion -> estudiante.getCarne().equals(notificacion.getEstudianteCarne()))
+                .map(notificacion -> {
+                    notificacion.marcarComoLeida();
+                    return notificacionRepository.save(notificacion);
+                });
     }
 }
