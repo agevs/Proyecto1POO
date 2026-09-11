@@ -105,3 +105,64 @@ body {
     background-color: var(--status-danger-bg);
     color: var(--status-danger-text);
 }
+
+/* RF-07: pestaña y tarjetas de notificaciones */
+.catalogo-tab {
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #666;
+    font: inherit;
+}
+
+.catalogo-tab-activa {
+    border-bottom-color: var(--uvg-green);
+    color: var(--text-main);
+    font-weight: bold;
+}
+
+.panel-alertas {
+    padding: 5px 0;
+}
+
+.lista-alertas {
+    display: grid;
+    gap: 12px;
+}
+
+.alerta {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid #9ca3af;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.alerta-no-leida {
+    border-left-color: var(--uvg-green);
+    background: #f0fdf4;
+}
+
+.alerta p {
+    margin: 0 0 8px;
+}
+
+.alerta-meta,
+.estado-alertas {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.btn-marcar-leida {
+    align-self: center;
+    min-width: 145px;
+    border: 1px solid var(--uvg-green);
+    border-radius: 4px;
+    padding: 8px 12px;
+    background: #fff;
+    color: var(--uvg-dark-green);
+    cursor: pointer;
+}

@@ -134,27 +134,26 @@
                     margin-bottom: 15px;
                 ">
 
-                    <div style="
+                    <button id="tab-catalogo" class="catalogo-tab catalogo-tab-activa" type="button" style="
                         padding: 10px 20px;
-                        font-weight: bold;
-                        border-bottom: 3px solid var(--uvg-green);
                         cursor: pointer;
                     ">
                         Catálogo General
-                    </div>
+                    </button>
 
-                    <div style="
+                    <button id="tab-alertas" class="catalogo-tab" type="button" style="
                         padding: 10px 20px;
-                        color: #666;
                         cursor: pointer;
                     ">
-                        Mis Alertas (2)
-                    </div>
+                        Mis Alertas (<span id="cantidad-alertas">0</span>)
+                    </button>
 
                 </div>
 
 
                 <!--BUSCADOR -->
+
+                <div id="panel-catalogo">
 
                 <div style="margin-bottom: 15px;">
 
@@ -225,6 +224,13 @@
                     </tbody>
 
                 </table>
+
+                </div>
+
+                <section id="panel-alertas" class="panel-alertas" hidden>
+                    <p id="estado-alertas" class="estado-alertas">Cargando alertas...</p>
+                    <div id="lista-alertas" class="lista-alertas"></div>
+                </section>
 
             </div>
 
