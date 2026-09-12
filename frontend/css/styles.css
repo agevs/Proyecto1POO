@@ -71,16 +71,88 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
+.table-custom colgroup {
+    display: none;
+}
+
+.table-custom thead,
+.table-custom tbody,
+.table-custom tr {
+    width: 100%;
+}
+
+.table-custom thead,
+.table-custom tbody {
+    display: block;
+}
+
+.table-custom thead tr,
+.table-custom tbody tr {
+    display: grid;
+    grid-template-columns: 11% 25% 12% 16% 16% 20%;
+}
+
+.table-custom tr > :nth-child(1) { grid-column: 1; }
+.table-custom tr > :nth-child(2) { grid-column: 2; }
+.table-custom tr > :nth-child(3) { grid-column: 3; }
+.table-custom tr > :nth-child(4) { grid-column: 4; }
+.table-custom tr > :nth-child(5) { grid-column: 5; }
+.table-custom tr > :nth-child(6) { grid-column: 6; }
+
 .table-custom th, .table-custom td {
+    display: block;
+    min-width: 0;
     padding: 12px;
     border: 1px solid var(--border-color);
     text-align: left;
     font-size: 0.9rem;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
 }
 
 .table-custom th {
     background-color: #4a777a; /* Tono de cabecera de catálogo UVG */
     color: white;
+}
+
+.table-custom td small {
+    display: inline-block;
+    margin-top: 6px;
+    color: #666;
+}
+
+.table-custom .btn-ver-ficha,
+.table-custom .btn-seguir {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    white-space: normal;
+}
+
+.table-custom tbody td:last-child {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    min-width: 0;
+}
+
+.table-custom .btn-ver-ficha {
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 1px solid #9aa7ad;
+    border-radius: 4px;
+    background: #f8fafb;
+    color: #263238;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.table-custom .btn-ver-ficha:hover {
+    border-color: var(--uvg-green);
+    background: #eef8f2;
+    color: var(--uvg-dark-green);
 }
 
 /* Insignias de Estado */
