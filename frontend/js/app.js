@@ -64,10 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // CARGAS INICIALES
     cargarCursos();
+
     configurarPestanas(
         tabCatalogo,
         tabAlertas
     );
+
     cargarNotificaciones();
 });
 
@@ -176,7 +178,7 @@ function mostrarCursos(
                     : "badge-warning";
 
 
-            // COMPROBAR SI ESTA SECCIÓN YA ESTÁ SIENDO SEGUIDA
+            // COMPROBAR SI YA SE SIGUE ESTA SECCIÓN
             const estaSiguiendo =
                 seguimientos.some(
                     seguimiento =>
@@ -228,6 +230,7 @@ function mostrarCursos(
                 <td>
 
                     <button
+                        type="button"
                         class="btn-ver-ficha"
                         data-codigo="${curso.codigoCurso}"
                         data-seccion="${seccion.numeroSeccion}">
@@ -238,6 +241,7 @@ function mostrarCursos(
 
 
                     <button
+                        type="button"
                         class="btn-uvg btn-seguir"
                         data-codigo="${curso.codigoCurso}"
                         data-seccion="${seccion.numeroSeccion}"
@@ -269,7 +273,8 @@ function mostrarCursos(
 
     botonesSeguir.forEach(boton => {
 
-        // SI YA ESTÁ SIGUIENDO, NO AGREGAMOS EVENTO
+        // SI YA ESTÁ SIGUIENDO,
+        // NO AGREGAR EVENTO
         if (boton.disabled) {
             return;
         }
@@ -278,6 +283,10 @@ function mostrarCursos(
         boton.addEventListener(
             "click",
             async (evento) => {
+
+                evento.preventDefault();
+                evento.stopPropagation();
+
 
                 const botonSeleccionado =
                     evento.currentTarget;
@@ -318,8 +327,9 @@ async function seguirSeccion(
 
     try {
 
-        // DESACTIVAR TEMPORALMENTE PARA EVITAR DOBLE CLIC
-        botonElemento.disabled = true;
+        // EVITAR DOBLE CLIC
+        botonElemento.disabled =
+            true;
 
 
         const respuesta =
@@ -396,7 +406,6 @@ async function seguirSeccion(
         );
 
 
-        // PERMITIR VOLVER A INTENTAR
         botonElemento.disabled =
             false;
 
@@ -443,7 +452,9 @@ function configurarPestanas(
     // MOSTRAR CATÁLOGO
     tabCatalogo.addEventListener(
         "click",
-        () => {
+        (evento) => {
+
+            evento.preventDefault();
 
             panelCatalogo.hidden =
                 false;
@@ -464,10 +475,12 @@ function configurarPestanas(
     );
 
 
-    // MOSTRAR ALERTAS
+    // MOSTRAR MIS ALERTAS
     tabAlertas.addEventListener(
         "click",
-        () => {
+        async (evento) => {
+
+            evento.preventDefault();
 
             panelCatalogo.hidden =
                 true;
@@ -486,7 +499,7 @@ function configurarPestanas(
             );
 
 
-            cargarNotificaciones();
+            await cargarNotificaciones();
         }
     );
 }
@@ -589,6 +602,7 @@ function mostrarNotificaciones(
     }
 
 
+    // CONTAR ALERTAS NO LEÍDAS
     const noLeidas =
         notificaciones.filter(
             notificacion =>
@@ -604,7 +618,7 @@ function mostrarNotificaciones(
         "";
 
 
-    // SIN NOTIFICACIONES
+    // NO HAY NOTIFICACIONES
     if (notificaciones.length === 0) {
 
         estado.textContent =
@@ -699,6 +713,7 @@ function mostrarNotificaciones(
                     );
 
 
+                // EVITAR QUE ACTÚE COMO SUBMIT
                 boton.type =
                     "button";
 
@@ -713,9 +728,13 @@ function mostrarNotificaciones(
 
                 boton.addEventListener(
                     "click",
-                    () => {
+                    async (evento) => {
 
-                        marcarNotificacionComoLeida(
+                        evento.preventDefault();
+                        evento.stopPropagation();
+
+
+                        await marcarNotificacionComoLeida(
                             notificacion.idNotificacion
                         );
                     }
@@ -768,8 +787,35 @@ async function marcarNotificacionComoLeida(
     idNotificacion
 ) {
 
+    const modalCatalogo =
+        document.getElementById(
+            "modal-catalogo-general"
+        );
+
+    const panelCatalogo =
+        document.getElementById(
+            "panel-catalogo"
+        );
+
+    const panelAlertas =
+        document.getElementById(
+            "panel-alertas"
+        );
+
+    const tabCatalogo =
+        document.getElementById(
+            "tab-catalogo"
+        );
+
+    const tabAlertas =
+        document.getElementById(
+            "tab-alertas"
+        );
+
+
     try {
 
+        // MARCAR NOTIFICACIÓN COMO LEÍDA
         const respuesta =
             await fetch(
                 `http://localhost:8080/api/notificaciones/${idNotificacion}/leida`,
@@ -787,8 +833,80 @@ async function marcarNotificacionComoLeida(
         }
 
 
-        // RECARGAR ALERTAS
-        await cargarNotificaciones();
+        // VOLVER A CONSULTAR LAS NOTIFICACIONES
+        const respuestaNotificaciones =
+            await fetch(
+                "http://localhost:8080/api/notificaciones"
+            );
+
+
+        if (!respuestaNotificaciones.ok) {
+
+            throw new Error(
+                "No se pudieron recargar las notificaciones"
+            );
+        }
+
+
+        const notificaciones =
+            await respuestaNotificaciones.json();
+
+
+        // ACTUALIZAR ÚNICAMENTE LAS ALERTAS
+        mostrarNotificaciones(
+            notificaciones
+        );
+
+
+        // ASEGURAR QUE EL CATÁLOGO SIGA ABIERTO
+        if (modalCatalogo) {
+
+            modalCatalogo.style.display =
+                "block";
+        }
+
+
+        // MANTENER OCULTO EL CATÁLOGO
+        if (panelCatalogo) {
+
+            panelCatalogo.hidden =
+                true;
+        }
+
+
+        // MANTENER VISIBLES LAS ALERTAS
+        if (panelAlertas) {
+
+            panelAlertas.hidden =
+                false;
+        }
+
+
+        // MANTENER LA PESTAÑA CORRECTA ACTIVA
+        if (tabCatalogo) {
+
+            tabCatalogo.classList.remove(
+                "catalogo-tab-activa"
+            );
+        }
+
+
+        if (tabAlertas) {
+
+            tabAlertas.classList.add(
+                "catalogo-tab-activa"
+            );
+        }
+
+
+        // VOLVER VISUALMENTE AL PANEL DE ALERTAS
+        if (modalCatalogo) {
+
+            modalCatalogo.scrollIntoView({
+                behavior: "auto",
+                block: "start"
+            });
+        }
 
 
     } catch (error) {

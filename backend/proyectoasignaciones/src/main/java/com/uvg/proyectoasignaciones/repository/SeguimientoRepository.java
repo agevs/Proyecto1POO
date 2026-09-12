@@ -12,15 +12,24 @@ import com.uvg.proyectoasignaciones.model.Seguimiento;
 public interface SeguimientoRepository
         extends JpaRepository<Seguimiento, Integer> {
 
+    // RF-06: seguimientos activos de un estudiante
     List<Seguimiento> findByEstudianteCarneAndActivoTrue(
             String carne
     );
 
+    // RF-06: todos los seguimientos activos
     List<Seguimiento> findByActivoTrue();
 
+    // RF-04: evitar seguir dos veces la misma sección
     Optional<Seguimiento>
             findByEstudianteCarneAndSeccionIdSeccionAndActivoTrue(
                     String carne,
+                    Long idSeccion
+            );
+
+    // RF-07: estudiantes que siguen una sección
+    List<Seguimiento>
+            findBySeccionIdSeccionAndActivoTrue(
                     Long idSeccion
             );
 }
