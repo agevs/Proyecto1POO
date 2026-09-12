@@ -61,52 +61,17 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
-// GESTIÓN DE PESTAÑAS (CATÁLOGO / ALERTAS)
-    if (tabCatalogo && panelCatalogo && panelAlertas && tabAlertas) {
-        tabCatalogo.addEventListener(
-            "click",
-            (evento) => {
-                evento.preventDefault();
-                panelCatalogo.hidden = false;
-                panelAlertas.hidden = true;
-                tabCatalogo.classList.add("catalogo-tab-activa");
-                tabAlertas.classList.remove("catalogo-tab-activa");
-            }
-        );
-    }
 
-     // CARGAS INICIALES
+    // CARGAS INICIALES
     cargarCursos();
+
+    configurarPestanas(
+        tabCatalogo,
+        tabAlertas
+    );
+
     cargarNotificaciones();
 });
-
-// MOSTRAR MIS ALERTAS
-const tabAlertasGlobal = document.getElementById("tab-alertas");
-const panelCatalogoGlobal = document.getElementById("panel-catalogo");
-const panelAlertasGlobal = document.getElementById("panel-alertas");
-const tabCatalogoGlobal = document.getElementById("tab-catalogo");
-
-if (tabAlertasGlobal && panelCatalogoGlobal && panelAlertasGlobal && tabCatalogoGlobal) {
-    tabAlertasGlobal.addEventListener(
-        "click",
-        async (evento) => {
-            evento.preventDefault();
-
-            panelCatalogoGlobal.hidden = true;
-            panelAlertasGlobal.hidden = false;
-
-            tabAlertasGlobal.classList.add(
-                "catalogo-tab-activa"
-            );
-
-            tabCatalogoGlobal.classList.remove(
-                "catalogo-tab-activa"
-            );
-
-            await cargarNotificaciones();
-        }
-    );
-}
 
 // RF-02: CONSULTAR CURSOS Y SECCIONES
 // RF-04: CONSULTAR ESTADO DE SEGUIMIENTO
@@ -293,15 +258,18 @@ function mostrarCursos(
                 </td>
             `;
 
+
             tabla.appendChild(fila);
         });
     });
+
 
     // CONFIGURAR BOTONES SEGUIR
     const botonesSeguir =
         tabla.querySelectorAll(
             ".btn-seguir"
         );
+
 
     botonesSeguir.forEach(boton => {
 
@@ -347,34 +315,44 @@ function mostrarCursos(
 }
 
 // RF-04: SEGUIR UNA SECCIÓN
+
 async function seguirSeccion(
     codigoCurso,
     numeroSeccion,
     botonElemento
 ) {
 
-    const idEstudiante = localStorage.getItem("carnetEstudiante") || 26594;
-    const textoOriginal = botonElemento.textContent;
+    // RF-04: Obtener idEstudiante dinámicamente del almacenamiento local (localStorage) de la sesión activa
+    const idEstudiante = localStorage.getItem("carnetEstudiante") || localStorage.getItem("idEstudiante") || 26594;
+
+
+    try {
 
         // EVITAR DOBLE CLIC
-        botonElemento.disabled = true;
-        botonElemento.textContent = "⏳ Procesando...";
+        botonElemento.disabled =
+            true;
 
-    try {  
+
         const respuesta =
             await fetch(
                 "http://localhost:8080/api/seguimientos",
                 {
+                    // RF-04: Configuración explícita del método HTTP y cabeceras (headers) dentro del fetch
                     method: "POST",
+
                     headers: {
                         "Content-Type":
                             "application/json"
                     },
+
                     body: JSON.stringify({
+
                         carnetEstudiante:
                             idEstudiante,
+
                         codigoCurso:
                             codigoCurso,
+
                         seccion:
                             parseInt(
                                 numeroSeccion
@@ -382,27 +360,38 @@ async function seguirSeccion(
                     })
                 }
             );
+
+
         if (!respuesta.ok) {
-            const errorData = await respuesta.json().catch(() => null);
-            const mensajeServidor = errorData?.mensaje || errorData?.message || "No se pudo registrar el seguimiento de la sección.";
-            throw new Error(mensajeServidor);
+
+            const mensajeError =
+                await respuesta.text();
+
+
+            throw new Error(
+                mensajeError ||
+                "No se pudo registrar el seguimiento."
+            );
         }
+
 
         const resultado =
             await respuesta.json();
+
 
         console.log(
             "Seguimiento registrado:",
             resultado
         );
 
+
         // ACTUALIZAR BOTÓN
         botonElemento.textContent =
             "🔔 Siguiendo";
-        botonElemento.style.backgroundColor =
-            "var(--uvg-dark-green)";
+
         botonElemento.disabled =
             true;
+
 
         alert(
             `Has comenzado a seguir exitosamente ` +
@@ -410,24 +399,92 @@ async function seguirSeccion(
             `del curso ${codigoCurso}`
         );
 
+
     } catch (error) {
+
         console.error(
             "Error al registrar seguimiento:",
             error
         );
 
-        // RESTAURAR EL BOTÓN EN CASO DE ERROR
+
         botonElemento.disabled =
             false;
-        botonElemento.textContent =
-            textoOriginal;
 
-        alert(
-            error.message ||
-            "Ocurrió un error al intentar seguir la sección. Inténtalo de nuevo."
-        );
+
+        botonElemento.textContent =
+            "🔔 Seguir";
+
+
+        // RF-04: Manejo avanzado de errores del servidor para extraer mensajes específicos del backend (ej. ya inscrito o siguiendo)
+        let mensajeAlerta = "Ocurrió un error al intentar seguir la sección. Inténtalo de nuevo.";
+        if (error && error.message) {
+            if (error.message.includes("ya") || error.message.includes("inscrito") || error.message.includes("siguiendo")) {
+                mensajeAlerta = error.message;
+                botonElemento.textContent = "🔔 Siguiendo";
+                botonElemento.disabled = true;
+            } else {
+                mensajeAlerta = error.message;
+            }
+        }
+
+        alert(mensajeAlerta);
     }
 }
+
+// RF-07: PESTAÑAS CATÁLOGO / MIS ALERTAS
+
+function configurarPestanas(
+    tabCatalogo,
+    tabAlertas
+) {
+
+    const panelCatalogo =
+        document.getElementById(
+            "panel-catalogo"
+        );
+
+    const panelAlertas =
+        document.getElementById(
+            "panel-alertas"
+        );
+
+
+    if (
+        !tabCatalogo ||
+        !tabAlertas ||
+        !panelCatalogo ||
+        !panelAlertas
+    ) {
+        return;
+    }
+
+
+    // MOSTRAR CATÁLOGO
+    tabCatalogo.addEventListener(
+        "click",
+        (evento) => {
+
+            evento.preventDefault();
+
+            panelCatalogo.hidden =
+                false;
+
+            panelAlertas.hidden =
+                true;
+
+
+            tabCatalogo.classList.add(
+                "catalogo-tab-activa"
+            );
+
+
+            tabAlertas.classList.remove(
+                "catalogo-tab-activa"
+            );
+        }
+    );
+
 
     // MOSTRAR MIS ALERTAS
     tabAlertas.addEventListener(
@@ -456,6 +513,7 @@ async function seguirSeccion(
             await cargarNotificaciones();
         }
     );
+}
 
 // RF-07: OBTENER NOTIFICACIONES
 
@@ -759,13 +817,16 @@ async function marcarNotificacionComoLeida(
         document.getElementById(
             "tab-catalogo"
         );
-    
+
     const tabAlertas =
         document.getElementById(
             "tab-alertas"
         );
 
+
     try {
+
+        // MARCAR NOTIFICACIÓN COMO LEÍDA
         const respuesta =
             await fetch(
                 `http://localhost:8080/api/notificaciones/${idNotificacion}/leida`,
@@ -774,7 +835,7 @@ async function marcarNotificacionComoLeida(
                 }
             );
 
-        //NUEVO: Análisis avanzado de errores
+
         if (!respuesta.ok) {
 
             throw new Error(
@@ -782,6 +843,8 @@ async function marcarNotificacionComoLeida(
             );
         }
 
+
+        // VOLVER A CONSULTAR LAS NOTIFICACIONES
         const respuestaNotificaciones =
             await fetch(
                 "http://localhost:8080/api/notificaciones"
@@ -856,7 +919,9 @@ async function marcarNotificacionComoLeida(
             });
         }
 
+
     } catch (error) {
+
         console.error(
             "Error al marcar la notificación como leída:",
             error
