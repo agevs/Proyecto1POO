@@ -251,7 +251,15 @@ async function marcarNotificacionComoLeida(idNotificacion) {
 
 // RF-04: Petición POST al backend para registrar el seguimiento de la secciónasync function seguirSeccion(codigoCurso, numeroSeccion, botonElemento) {
 async function seguirSeccion(codigoCurso, numeroSeccion, botonElemento) {
-    const idEstudiante = 26594;   
+    //NUEVO: Obtención dinámica de la sesión
+    const idEstudiante = localStorage.getItem("carnetEstudiante") || 26594;
+    
+    //NUEVO: Guardar el texto original
+    const textoOriginal = botonElemento.textContent;
+
+    //NUEVO: Indicador de carga en el botón
+    botonElemento.disabled = true;
+    botonElemento.textContent = "⏳ Procesando...";
 
     try {
         const respuesta = await fetch(`http://localhost:8080/api/seguimientos`, {
@@ -266,8 +274,11 @@ async function seguirSeccion(codigoCurso, numeroSeccion, botonElemento) {
             })
         });
 
+        //NUEVO: Análisis avanzado de errores
         if (!respuesta.ok) {
-            throw new Error("No se pudo registrar el seguimiento de la sección.");
+            const errorData = await respuesta.json().catch(() => null);
+            const mensajeServidor = errorData?.mensaje || errorData?.message || "No se pudo registrar el seguimiento de la sección.";
+            throw new Error(mensajeServidor);
         }
 
         const resultado = await respuesta.json();
@@ -276,11 +287,16 @@ async function seguirSeccion(codigoCurso, numeroSeccion, botonElemento) {
         //Actualización visual
         botonElemento.textContent = "🔔 Siguiendo";
         botonElemento.style.backgroundColor = "var(--uvg-dark-green)";
-        botonElemento.disabled = true;
 
         alert(`Has comenzado a seguir exitosamente la sección ${numeroSeccion} del curso ${codigoCurso}`);
     } catch (error) {
         console.error("Error en la solicitud de seguimiento", error);
-        alert("Ocurrió un error al intentar seguir la sección. Inténtalo de nuevo.");
+
+        //NUEVO: Restauración del botón
+        botonElemento.disabled = false;
+        botonElemento.textContent = textoOriginal;
+
+        //NUEVO: Alerta con mensaje personalizado
+        alert(error.message || "Ocurrió un error al intentar seguir la sección. Inténtalo de nuevo.");
     }
 }
