@@ -128,6 +128,11 @@ async function cargarCursos() {
             seguimientos
         );
 
+		configurarBuscador(
+			cursos,
+			seguimientos
+		);
+
     } catch (error) {
 
         console.error(
@@ -135,6 +140,57 @@ async function cargarCursos() {
             error
         );
     }
+}
+
+function configurarBuscador(
+	cursos,
+	seguimientos
+) {
+
+	const buscador =
+		document.getElementById(
+			"buscador-cursos"
+		);
+
+	if (
+		!buscador ||
+		buscador.dataset.configurado === "true"
+	) {
+		return;
+	}
+
+	buscador.dataset.configurado = "true";
+
+	buscador.addEventListener(
+		"input",
+		(evento) => {
+
+			const termino = normalizarTexto(
+				evento.target.value
+			);
+
+			const cursosFiltrados = !termino
+				? cursos
+				: cursos.filter(
+					curso => normalizarTexto(
+						`${curso.codigoCurso} ${curso.nombreCurso}`
+					).includes(termino)
+				);
+
+			mostrarCursos(
+				cursosFiltrados,
+				seguimientos
+			);
+		}
+	);
+}
+
+function normalizarTexto(valor) {
+	return String(valor ?? "")
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.toLowerCase()
+		.trim();
 }
 
 // MOSTRAR CURSOS EN LA TABLA
@@ -179,84 +235,21 @@ function mostrarCursos(
 
 
             // COMPROBAR SI YA SE SIGUE ESTA SECCIÓN
-            const estaSiguiendo =
-                seguimientos.some(
-                    seguimiento =>
+			const seguimientoActual =
+				seguimientos.find(
+					seguimiento =>
+						seguimiento.activo === true &&
+						seguimiento.seccion &&
+						seguimiento.seccion.idSeccion ===
+							seccion.idSeccion
+				);
 
-                        seguimiento.activo === true &&
-
-                        seguimiento.seccion &&
-
-                        seguimiento.seccion.idSeccion ===
-                            seccion.idSeccion
-                );
-
-
-            fila.innerHTML = `
-
-                <td>
-                    ${curso.codigoCurso}
-                </td>
-
-                <td>
-                    ${curso.nombreCurso}
-
-                    <br>
-
-                    <small>
-                        ${seccion.horario}
-                    </small>
-                </td>
-
-                <td>
-                    Sección ${seccion.numeroSeccion}
-                </td>
-
-                <td>
-                    ${nombreDocente}
-                </td>
-
-                <td>
-
-                    <span
-                        class="badge-status ${claseEstado}">
-
-                        ${seccion.estado}
-
-                    </span>
-
-                </td>
-
-                <td>
-
-                    <button
-                        type="button"
-                        class="btn-ver-ficha"
-                        data-codigo="${curso.codigoCurso}"
-                        data-seccion="${seccion.numeroSeccion}">
-
-                        Ver Ficha
-
-                    </button>
+			const estaSiguiendo = Boolean(
+				seguimientoActual
+			);
 
 
-                    <button
-                        type="button"
-                        class="btn-uvg btn-seguir"
-                        data-codigo="${curso.codigoCurso}"
-                        data-seccion="${seccion.numeroSeccion}"
-                        ${estaSiguiendo ? "disabled" : ""}>
-
-                        ${
-                            estaSiguiendo
-                                ? "🔔 Siguiendo"
-                                : "🔔 Seguir"
-                        }
-
-                    </button>
-
-                </td>
-            `;
+			fila.innerHTML = `<td>${curso.codigoCurso}</td><td>${curso.nombreCurso}<br><small>${seccion.horario}</small></td><td>Sección ${seccion.numeroSeccion}</td><td>${nombreDocente}</td><td><span class="badge-status ${claseEstado}">${seccion.estado}</span></td><td><button type="button" class="btn-ver-ficha" data-codigo="${curso.codigoCurso}" data-seccion="${seccion.numeroSeccion}">Ver Ficha</button><button type="button" class="btn-uvg btn-seguir" data-codigo="${curso.codigoCurso}" data-seccion="${seccion.numeroSeccion}" data-siguiendo="${estaSiguiendo}">${estaSiguiendo ? "🔔 Siguiendo" : "🔔 Seguir"}</button></td>`;
 
 
             tabla.appendChild(fila);
@@ -272,13 +265,6 @@ function mostrarCursos(
 
 
     botonesSeguir.forEach(boton => {
-
-        // SI YA ESTÁ SIGUIENDO,
-        // NO AGREGAR EVENTO
-        if (boton.disabled) {
-            return;
-        }
-
 
         boton.addEventListener(
             "click",
@@ -304,10 +290,11 @@ function mostrarCursos(
                     );
 
 
-                await seguirSeccion(
+				await alternarSeguimiento(
                     codigoCurso,
                     numeroSeccion,
-                    botonSeleccionado
+					botonSeleccionado,
+					botonSeleccionado.dataset.siguiendo === "true"
                 );
             }
         );
@@ -316,10 +303,11 @@ function mostrarCursos(
 
 // RF-04: SEGUIR UNA SECCIÓN
 
-async function seguirSeccion(
+async function alternarSeguimiento(
     codigoCurso,
     numeroSeccion,
-    botonElemento
+	botonElemento,
+	estaSiguiendo
 ) {
 
     // RF-04: Obtener idEstudiante dinámicamente del almacenamiento local (localStorage) de la sesión activa
@@ -335,10 +323,14 @@ async function seguirSeccion(
 
         const respuesta =
             await fetch(
-                "http://localhost:8080/api/seguimientos",
+                estaSiguiendo
+                    ? "http://localhost:8080/api/seguimientos/desactivar"
+                    : "http://localhost:8080/api/seguimientos",
                 {
                     // RF-04: Configuración explícita del método HTTP y cabeceras (headers) dentro del fetch
-                    method: "POST",
+                    method: estaSiguiendo
+                        ? "PATCH"
+                        : "POST",
 
                     headers: {
                         "Content-Type":
@@ -370,7 +362,9 @@ async function seguirSeccion(
 
             throw new Error(
                 mensajeError ||
-                "No se pudo registrar el seguimiento."
+                estaSiguiendo
+                    ? "No se pudo dejar de seguir la sección."
+                    : "No se pudo registrar el seguimiento."
             );
         }
 
@@ -380,23 +374,24 @@ async function seguirSeccion(
 
 
         console.log(
-            "Seguimiento registrado:",
+            "Seguimiento actualizado:",
             resultado
         );
 
 
-        // ACTUALIZAR BOTÓN
-        botonElemento.textContent =
-            "🔔 Siguiendo";
-
-        botonElemento.disabled =
-            true;
+        const nuevoEstado = !estaSiguiendo;
+        botonElemento.dataset.siguiendo =
+            String(nuevoEstado);
+        botonElemento.textContent = nuevoEstado
+            ? "🔔 Siguiendo"
+            : "🔔 Seguir";
+        botonElemento.disabled = false;
 
 
         alert(
-            `Has comenzado a seguir exitosamente ` +
-            `la sección ${numeroSeccion} ` +
-            `del curso ${codigoCurso}`
+            nuevoEstado
+                ? `Ahora sigues la sección ${numeroSeccion} del curso ${codigoCurso}.`
+                : `Has dejado de seguir la sección ${numeroSeccion} del curso ${codigoCurso}.`
         );
 
 
@@ -412,20 +407,15 @@ async function seguirSeccion(
             false;
 
 
-        botonElemento.textContent =
-            "🔔 Seguir";
+        botonElemento.textContent = estaSiguiendo
+            ? "🔔 Siguiendo"
+            : "🔔 Seguir";
 
 
         // RF-04: Manejo avanzado de errores del servidor para extraer mensajes específicos del backend (ej. ya inscrito o siguiendo)
         let mensajeAlerta = "Ocurrió un error al intentar seguir la sección. Inténtalo de nuevo.";
         if (error && error.message) {
-            if (error.message.includes("ya") || error.message.includes("inscrito") || error.message.includes("siguiendo")) {
-                mensajeAlerta = error.message;
-                botonElemento.textContent = "🔔 Siguiendo";
-                botonElemento.disabled = true;
-            } else {
-                mensajeAlerta = error.message;
-            }
+            mensajeAlerta = error.message;
         }
 
         alert(mensajeAlerta);
