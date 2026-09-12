@@ -1,302 +1,865 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Elementos de la interfaz
-    const linkAsignaciones = document.getElementById("link-asignaciones");
-    const btnAbrirCatalogo = document.getElementById("btn-abrir-catalogo");
-    const modalCatalogo = document.getElementById("modal-catalogo-general");
-    const tabCatalogo = document.getElementById("tab-catalogo");
-    const tabAlertas = document.getElementById("tab-alertas");
+    // ELEMENTOS DE LA INTERFAZ
+    const linkAsignaciones =
+        document.getElementById("link-asignaciones");
 
-    // NAVEGACIÓN HACIA ASIGNACIONES
-    if (linkAsignaciones) {
-        linkAsignaciones.addEventListener("click", (e) => {
-            e.preventDefault();
-            window.location.href = "splash.html";
-        });
-    }
+    const btnAbrirCatalogo =
+        document.getElementById("btn-abrir-catalogo");
 
-    // ABRIR / CERRAR CATÁLOGO GENERAL
-    if (btnAbrirCatalogo && modalCatalogo) {
-        btnAbrirCatalogo.addEventListener("click", () => {
-            if (
-                modalCatalogo.style.display === "none" ||
-                modalCatalogo.style.display === ""
-            ) {
-                modalCatalogo.style.display = "block";
-                modalCatalogo.scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                modalCatalogo.style.display = "none";
-            }
-        });
-    }
+    const modalCatalogo =
+        document.getElementById("modal-catalogo-general");
 
-    // CARGAR CURSOS DESDE SPRING BOOT
-    cargarCursos();
-    configurarPestanas(tabCatalogo, tabAlertas);
-    cargarNotificaciones();
+    const tabCatalogo =
+        document.getElementById("tab-catalogo");
+
+    const tabAlertas =
+        document.getElementById("tab-alertas");
+
+
+    // NAVEGACIÓN HACIA ASIGNACIONES
+    if (linkAsignaciones) {
+
+        linkAsignaciones.addEventListener(
+            "click",
+            (evento) => {
+
+                evento.preventDefault();
+
+                window.location.href =
+                    "splash.html";
+            }
+        );
+    }
+
+
+    // ABRIR / CERRAR CATÁLOGO GENERAL
+    if (btnAbrirCatalogo && modalCatalogo) {
+
+        btnAbrirCatalogo.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    modalCatalogo.style.display === "none" ||
+                    modalCatalogo.style.display === ""
+                ) {
+
+                    modalCatalogo.style.display =
+                        "block";
+
+                    modalCatalogo.scrollIntoView({
+                        behavior: "smooth"
+                    });
+
+                } else {
+
+                    modalCatalogo.style.display =
+                        "none";
+                }
+            }
+        );
+    }
+
+// GESTIÓN DE PESTAÑAS (CATÁLOGO / ALERTAS)
+    if (tabCatalogo && panelCatalogo && panelAlertas && tabAlertas) {
+        tabCatalogo.addEventListener(
+            "click",
+            (evento) => {
+                evento.preventDefault();
+                panelCatalogo.hidden = false;
+                panelAlertas.hidden = true;
+                tabCatalogo.classList.add("catalogo-tab-activa");
+                tabAlertas.classList.remove("catalogo-tab-activa");
+            }
+        );
+    }
+
+     // CARGAS INICIALES
+    cargarCursos();
+    cargarNotificaciones();
 });
 
-// OBTENER CURSOS DEL BACKEND
+// MOSTRAR MIS ALERTAS
+const tabAlertasGlobal = document.getElementById("tab-alertas");
+const panelCatalogoGlobal = document.getElementById("panel-catalogo");
+const panelAlertasGlobal = document.getElementById("panel-alertas");
+const tabCatalogoGlobal = document.getElementById("tab-catalogo");
+
+if (tabAlertasGlobal && panelCatalogoGlobal && panelAlertasGlobal && tabCatalogoGlobal) {
+    tabAlertasGlobal.addEventListener(
+        "click",
+        async (evento) => {
+            evento.preventDefault();
+
+            panelCatalogoGlobal.hidden = true;
+            panelAlertasGlobal.hidden = false;
+
+            tabAlertasGlobal.classList.add(
+                "catalogo-tab-activa"
+            );
+
+            tabCatalogoGlobal.classList.remove(
+                "catalogo-tab-activa"
+            );
+
+            await cargarNotificaciones();
+        }
+    );
+}
+
+// RF-02: CONSULTAR CURSOS Y SECCIONES
+// RF-04: CONSULTAR ESTADO DE SEGUIMIENTO
+
 async function cargarCursos() {
-    try {
-        const respuesta = await fetch("http://localhost:8080/api/cursos");
 
-        if (!respuesta.ok) {
-            throw new Error("No se pudieron obtener los cursos");
-        }
+    try {
 
-        const cursos = await respuesta.json();
-        console.log("Cursos recibidos:", cursos);
-        mostrarCursos(cursos);
+        // OBTENER CURSOS
+        const respuestaCursos =
+            await fetch(
+                "http://localhost:8080/api/cursos"
+            );
 
-    } catch (error) {
-        console.error("Error al cargar cursos:", error);
-    }
+        if (!respuestaCursos.ok) {
+
+            throw new Error(
+                "No se pudieron obtener los cursos"
+            );
+        }
+
+        const cursos =
+            await respuestaCursos.json();
+
+
+        // OBTENER SEGUIMIENTOS ACTIVOS DEL ESTUDIANTE
+        const respuestaSeguimientos =
+            await fetch(
+                "http://localhost:8080/api/seguimientos/estudiante/26594"
+            );
+
+        let seguimientos = [];
+
+        if (respuestaSeguimientos.ok) {
+
+            seguimientos =
+                await respuestaSeguimientos.json();
+        }
+
+
+        console.log(
+            "Cursos recibidos:",
+            cursos
+        );
+
+        console.log(
+            "Seguimientos activos:",
+            seguimientos
+        );
+
+
+        mostrarCursos(
+            cursos,
+            seguimientos
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Error al cargar cursos:",
+            error
+        );
+    }
 }
 
 // MOSTRAR CURSOS EN LA TABLA
-function mostrarCursos(cursos) {
-    const tabla = document.getElementById("tabla-cursos-body");
 
-    if (!tabla) {
-        return;
-    }
+function mostrarCursos(
+    cursos,
+    seguimientos
+) {
 
-    tabla.innerHTML = "";
+    const tabla =
+        document.getElementById(
+            "tabla-cursos-body"
+        );
 
-    cursos.forEach(curso => {
-        curso.secciones.forEach(seccion => {
-            const fila = document.createElement("tr");
+    if (!tabla) {
+        return;
+    }
 
-            const nombreDocente = seccion.docente
-                ? seccion.docente.nombre
-                : "STAFF";
+    tabla.innerHTML = "";
 
-            const claseEstado =
-                seccion.estado === "Confirmado"
-                    ? "badge-success"
-                    : "badge-warning";
 
-            fila.innerHTML = `
-                <td>${curso.codigoCurso}</td>
-                <td>
-                    ${curso.nombreCurso}
-                    <br>
-                    <small>${seccion.horario}</small>
-                </td>
-                <td>Sección ${seccion.numeroSeccion}</td>
-                <td>${nombreDocente}</td>
-                <td>
-                    <span class="badge-status ${claseEstado}">
-                        ${seccion.estado}
-                    </span>
-                </td>
-                <td>
-                    <button
-                        class="btn-ver-ficha"
-                        data-codigo="${curso.codigoCurso}"
-                        data-seccion="${seccion.numeroSeccion}">
-                        Ver Ficha
-                    </button>
-                    <button
-                        class="btn-uvg btn-seguir"
-                        data-codigo="${curso.codigoCurso}"
-                        data-seccion="${seccion.numeroSeccion}">
-                        🔔 Seguir
-                    </button>
-                </td>
-            `;
+    cursos.forEach(curso => {
 
-            tabla.appendChild(fila);
-        });
-    });
+        curso.secciones.forEach(seccion => {
 
-    // RF-04: Escuchador de eventos para los botones de seguir
-    const botonesSeguir = tabla.querySelectorAll(".btn-seguir");
+            const fila =
+                document.createElement("tr");
 
-    botonesSeguir.forEach(boton => {
-        boton.addEventListener("click", async (e) => {
-            const codigoCurso = e.target.getAttribute("data-codigo");
-            const numeroSeccion = e.target.getAttribute("data-seccion");
-            
-            await seguirSeccion(codigoCurso, numeroSeccion, e.target);
-        });
-    });
+
+            // DOCENTE
+            const nombreDocente =
+                seccion.docente
+                    ? seccion.docente.nombre
+                    : "STAFF";
+
+
+            // ESTADO DE LA SECCIÓN
+            const claseEstado =
+                seccion.estado === "Confirmado"
+                    ? "badge-success"
+                    : "badge-warning";
+
+
+            // COMPROBAR SI YA SE SIGUE ESTA SECCIÓN
+            const estaSiguiendo =
+                seguimientos.some(
+                    seguimiento =>
+
+                        seguimiento.activo === true &&
+
+                        seguimiento.seccion &&
+
+                        seguimiento.seccion.idSeccion ===
+                            seccion.idSeccion
+                );
+
+
+            fila.innerHTML = `
+
+                <td>
+                    ${curso.codigoCurso}
+                </td>
+
+                <td>
+                    ${curso.nombreCurso}
+
+                    <br>
+
+                    <small>
+                        ${seccion.horario}
+                    </small>
+                </td>
+
+                <td>
+                    Sección ${seccion.numeroSeccion}
+                </td>
+
+                <td>
+                    ${nombreDocente}
+                </td>
+
+                <td>
+
+                    <span
+                        class="badge-status ${claseEstado}">
+
+                        ${seccion.estado}
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <button
+                        type="button"
+                        class="btn-ver-ficha"
+                        data-codigo="${curso.codigoCurso}"
+                        data-seccion="${seccion.numeroSeccion}">
+
+                        Ver Ficha
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn-uvg btn-seguir"
+                        data-codigo="${curso.codigoCurso}"
+                        data-seccion="${seccion.numeroSeccion}"
+                        ${estaSiguiendo ? "disabled" : ""}>
+
+                        ${
+                            estaSiguiendo
+                                ? "🔔 Siguiendo"
+                                : "🔔 Seguir"
+                        }
+
+                    </button>
+
+                </td>
+            `;
+
+            tabla.appendChild(fila);
+        });
+    });
+
+    // CONFIGURAR BOTONES SEGUIR
+    const botonesSeguir =
+        tabla.querySelectorAll(
+            ".btn-seguir"
+        );
+
+    botonesSeguir.forEach(boton => {
+
+        // SI YA ESTÁ SIGUIENDO,
+        // NO AGREGAR EVENTO
+        if (boton.disabled) {
+            return;
+        }
+
+
+        boton.addEventListener(
+            "click",
+            async (evento) => {
+
+                evento.preventDefault();
+                evento.stopPropagation();
+
+
+                const botonSeleccionado =
+                    evento.currentTarget;
+
+
+                const codigoCurso =
+                    botonSeleccionado.getAttribute(
+                        "data-codigo"
+                    );
+
+
+                const numeroSeccion =
+                    botonSeleccionado.getAttribute(
+                        "data-seccion"
+                    );
+
+
+                await seguirSeccion(
+                    codigoCurso,
+                    numeroSeccion,
+                    botonSeleccionado
+                );
+            }
+        );
+    });
 }
 
-HEAD
-// RF-07: CONSULTAR Y MOSTRAR NOTIFICACIONES
+// RF-04: SEGUIR UNA SECCIÓN
+async function seguirSeccion(
+    codigoCurso,
+    numeroSeccion,
+    botonElemento
+) {
 
-function configurarPestanas(tabCatalogo, tabAlertas) {
-    const panelCatalogo = document.getElementById("panel-catalogo");
-    const panelAlertas = document.getElementById("panel-alertas");
+    const idEstudiante = localStorage.getItem("carnetEstudiante") || 26594;
+    const textoOriginal = botonElemento.textContent;
 
-    if (!tabCatalogo || !tabAlertas || !panelCatalogo || !panelAlertas) {
-        return;
-    }
+        // EVITAR DOBLE CLIC
+        botonElemento.disabled = true;
+        botonElemento.textContent = "⏳ Procesando...";
 
-    tabCatalogo.addEventListener("click", () => {
-        panelCatalogo.hidden = false;
-        panelAlertas.hidden = true;
-        tabCatalogo.classList.add("catalogo-tab-activa");
-        tabAlertas.classList.remove("catalogo-tab-activa");
-    });
+    try {  
+        const respuesta =
+            await fetch(
+                "http://localhost:8080/api/seguimientos",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        carnetEstudiante:
+                            idEstudiante,
+                        codigoCurso:
+                            codigoCurso,
+                        seccion:
+                            parseInt(
+                                numeroSeccion
+                            )
+                    })
+                }
+            );
+        if (!respuesta.ok) {
+            const errorData = await respuesta.json().catch(() => null);
+            const mensajeServidor = errorData?.mensaje || errorData?.message || "No se pudo registrar el seguimiento de la sección.";
+            throw new Error(mensajeServidor);
+        }
 
-    tabAlertas.addEventListener("click", () => {
-        panelCatalogo.hidden = true;
-        panelAlertas.hidden = false;
-        tabAlertas.classList.add("catalogo-tab-activa");
-        tabCatalogo.classList.remove("catalogo-tab-activa");
-        cargarNotificaciones();
-    });
+        const resultado =
+            await respuesta.json();
+
+        console.log(
+            "Seguimiento registrado:",
+            resultado
+        );
+
+        // ACTUALIZAR BOTÓN
+        botonElemento.textContent =
+            "🔔 Siguiendo";
+        botonElemento.style.backgroundColor =
+            "var(--uvg-dark-green)";
+        botonElemento.disabled =
+            true;
+
+        alert(
+            `Has comenzado a seguir exitosamente ` +
+            `la sección ${numeroSeccion} ` +
+            `del curso ${codigoCurso}`
+        );
+
+    } catch (error) {
+        console.error(
+            "Error al registrar seguimiento:",
+            error
+        );
+
+        // RESTAURAR EL BOTÓN EN CASO DE ERROR
+        botonElemento.disabled =
+            false;
+        botonElemento.textContent =
+            textoOriginal;
+
+        alert(
+            error.message ||
+            "Ocurrió un error al intentar seguir la sección. Inténtalo de nuevo."
+        );
+    }
 }
+
+    // MOSTRAR MIS ALERTAS
+    tabAlertas.addEventListener(
+        "click",
+        async (evento) => {
+
+            evento.preventDefault();
+
+            panelCatalogo.hidden =
+                true;
+
+            panelAlertas.hidden =
+                false;
+
+
+            tabAlertas.classList.add(
+                "catalogo-tab-activa"
+            );
+
+
+            tabCatalogo.classList.remove(
+                "catalogo-tab-activa"
+            );
+
+
+            await cargarNotificaciones();
+        }
+    );
+
+// RF-07: OBTENER NOTIFICACIONES
 
 async function cargarNotificaciones() {
-    const lista = document.getElementById("lista-alertas");
-    const estado = document.getElementById("estado-alertas");
 
-    if (!lista || !estado) {
-        return;
-    }
+    const lista =
+        document.getElementById(
+            "lista-alertas"
+        );
 
-    estado.textContent = "Cargando alertas...";
+    const estado =
+        document.getElementById(
+            "estado-alertas"
+        );
 
-    try {
-        const respuesta = await fetch("http://localhost:8080/api/notificaciones");
-        if (!respuesta.ok) {
-            throw new Error("No se pudieron obtener las notificaciones");
-        }
 
-        mostrarNotificaciones(await respuesta.json());
-    } catch (error) {
-        console.error("Error al cargar notificaciones:", error);
-        lista.innerHTML = "";
-        estado.textContent = "No fue posible cargar las alertas. Verifica que el backend esté activo.";
-    }
+    if (!lista || !estado) {
+        return;
+    }
+
+
+    estado.textContent =
+        "Cargando alertas...";
+
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "http://localhost:8080/api/notificaciones"
+            );
+
+
+        if (!respuesta.ok) {
+
+            throw new Error(
+                "No se pudieron obtener las notificaciones"
+            );
+        }
+
+
+        const notificaciones =
+            await respuesta.json();
+
+
+        mostrarNotificaciones(
+            notificaciones
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Error al cargar notificaciones:",
+            error
+        );
+
+
+        lista.innerHTML =
+            "";
+
+
+        estado.textContent =
+            "No fue posible cargar las alertas. " +
+            "Verifica que el backend esté activo.";
+    }
 }
 
-function mostrarNotificaciones(notificaciones) {
-    const lista = document.getElementById("lista-alertas");
-    const estado = document.getElementById("estado-alertas");
-    const cantidad = document.getElementById("cantidad-alertas");
+// RF-07: MOSTRAR NOTIFICACIONES
 
-    if (!lista || !estado || !cantidad) {
-        return;
-    }
+function mostrarNotificaciones(
+    notificaciones
+) {
 
-    const noLeidas = notificaciones.filter(notificacion => !notificacion.leida).length;
-    cantidad.textContent = noLeidas;
-    lista.innerHTML = "";
+    const lista =
+        document.getElementById(
+            "lista-alertas"
+        );
 
-    if (notificaciones.length === 0) {
-        estado.textContent = "No tienes alertas por el momento.";
-        return;
-    }
+    const estado =
+        document.getElementById(
+            "estado-alertas"
+        );
 
-    estado.textContent = `${notificaciones.length} alerta(s), ${noLeidas} sin leer`;
-    notificaciones.forEach(notificacion => {
-        const tarjeta = document.createElement("article");
-        tarjeta.className = `alerta ${notificacion.leida ? "" : "alerta-no-leida"}`;
+    const cantidad =
+        document.getElementById(
+            "cantidad-alertas"
+        );
 
-        const contenido = document.createElement("div");
-        const mensaje = document.createElement("p");
-        mensaje.textContent = notificacion.mensaje;
 
-        const detalle = document.createElement("small");
-        detalle.className = "alerta-meta";
-        const seccion = notificacion.seccion
-            ? `Sección ${notificacion.seccion.numeroSeccion} · `
-            : "";
-        detalle.textContent = seccion + formatearFecha(notificacion.fecha);
+    if (
+        !lista ||
+        !estado ||
+        !cantidad
+    ) {
+        return;
+    }
 
-        contenido.append(mensaje, detalle);
-        tarjeta.appendChild(contenido);
 
-        if (!notificacion.leida) {
-            const boton = document.createElement("button");
-            boton.type = "button";
-            boton.className = "btn-marcar-leida";
-            boton.textContent = "Marcar como leída";
-            boton.addEventListener("click", () => marcarNotificacionComoLeida(notificacion.idNotificacion));
-            tarjeta.appendChild(boton);
-        }
+    // CONTAR ALERTAS NO LEÍDAS
+    const noLeidas =
+        notificaciones.filter(
+            notificacion =>
+                !notificacion.leida
+        ).length;
 
-        lista.appendChild(tarjeta);
-    });
+
+    cantidad.textContent =
+        noLeidas;
+
+
+    lista.innerHTML =
+        "";
+
+
+    // NO HAY NOTIFICACIONES
+    if (notificaciones.length === 0) {
+
+        estado.textContent =
+            "No tienes alertas por el momento.";
+
+        return;
+    }
+
+
+    estado.textContent =
+        `${notificaciones.length} alerta(s), ` +
+        `${noLeidas} sin leer`;
+
+
+    notificaciones.forEach(
+        notificacion => {
+
+            const tarjeta =
+                document.createElement(
+                    "article"
+                );
+
+
+            tarjeta.className =
+                `alerta ${
+                    notificacion.leida
+                        ? ""
+                        : "alerta-no-leida"
+                }`;
+
+
+            const contenido =
+                document.createElement(
+                    "div"
+                );
+
+
+            const mensaje =
+                document.createElement(
+                    "p"
+                );
+
+
+            mensaje.textContent =
+                notificacion.mensaje;
+
+
+            const detalle =
+                document.createElement(
+                    "small"
+                );
+
+
+            detalle.className =
+                "alerta-meta";
+
+
+            const textoSeccion =
+                notificacion.seccion
+                    ? `Sección ${
+                        notificacion
+                            .seccion
+                            .numeroSeccion
+                    } · `
+                    : "";
+
+
+            detalle.textContent =
+                textoSeccion +
+                formatearFecha(
+                    notificacion.fecha
+                );
+
+
+            contenido.append(
+                mensaje,
+                detalle
+            );
+
+
+            tarjeta.appendChild(
+                contenido
+            );
+
+
+            // BOTÓN MARCAR COMO LEÍDA
+            if (!notificacion.leida) {
+
+                const boton =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                // EVITAR QUE ACTÚE COMO SUBMIT
+                boton.type =
+                    "button";
+
+
+                boton.className =
+                    "btn-marcar-leida";
+
+
+                boton.textContent =
+                    "Marcar como leída";
+
+
+                boton.addEventListener(
+                    "click",
+                    async (evento) => {
+
+                        evento.preventDefault();
+                        evento.stopPropagation();
+
+
+                        await marcarNotificacionComoLeida(
+                            notificacion.idNotificacion
+                        );
+                    }
+                );
+
+
+                tarjeta.appendChild(
+                    boton
+                );
+            }
+
+
+            lista.appendChild(
+                tarjeta
+            );
+        }
+    );
 }
+
+// FORMATEAR FECHA
 
 function formatearFecha(fecha) {
-    const valor = new Date(fecha);
-    return Number.isNaN(valor.getTime()) ? fecha : valor.toLocaleString("es-GT");
+
+    if (!fecha) {
+        return "";
+    }
+
+
+    const valor =
+        new Date(fecha);
+
+
+    if (
+        Number.isNaN(
+            valor.getTime()
+        )
+    ) {
+        return fecha;
+    }
+
+
+    return valor.toLocaleString(
+        "es-GT"
+    );
 }
 
-async function marcarNotificacionComoLeida(idNotificacion) {
-    try {
-        const respuesta = await fetch(
-            `http://localhost:8080/api/notificaciones/${idNotificacion}/leida`,
-            { method: "PATCH" }
-        );
+// RF-07: MARCAR NOTIFICACIÓN COMO LEÍDA
 
-        if (!respuesta.ok) {
-            throw new Error("No se pudo actualizar la notificación");
-        }
+async function marcarNotificacionComoLeida(
+    idNotificacion
+) {
 
-        await cargarNotificaciones();
-    } catch (error) {
-        console.error("Error al marcar la notificación:", error);
-    }
-}
+    const modalCatalogo =
+        document.getElementById(
+            "modal-catalogo-general"
+        );
 
-// RF-04: Petición POST al backend para registrar el seguimiento de la secciónasync function seguirSeccion(codigoCurso, numeroSeccion, botonElemento) {
-async function seguirSeccion(codigoCurso, numeroSeccion, botonElemento) {
-    //NUEVO: Obtención dinámica de la sesión
-    const idEstudiante = localStorage.getItem("carnetEstudiante") || 26594;
-    
-    //NUEVO: Guardar el texto original
-    const textoOriginal = botonElemento.textContent;
+    const panelCatalogo =
+        document.getElementById(
+            "panel-catalogo"
+        );
 
-    //NUEVO: Indicador de carga en el botón
-    botonElemento.disabled = true;
-    botonElemento.textContent = "⏳ Procesando...";
+    const panelAlertas =
+        document.getElementById(
+            "panel-alertas"
+        );
 
-    try {
-        const respuesta = await fetch(`http://localhost:8080/api/seguimientos`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                carnetEstudiante: idEstudiante,
-                codigoCurso: codigoCurso,
-                seccion: parseInt(numeroSeccion)
-            })
-        });
+    const tabCatalogo =
+        document.getElementById(
+            "tab-catalogo"
+        );
+    
+    const tabAlertas =
+        document.getElementById(
+            "tab-alertas"
+        );
 
-        //NUEVO: Análisis avanzado de errores
-        if (!respuesta.ok) {
-            const errorData = await respuesta.json().catch(() => null);
-            const mensajeServidor = errorData?.mensaje || errorData?.message || "No se pudo registrar el seguimiento de la sección.";
-            throw new Error(mensajeServidor);
-        }
+    try {
+        const respuesta =
+            await fetch(
+                `http://localhost:8080/api/notificaciones/${idNotificacion}/leida`,
+                {
+                    method: "PATCH"
+                }
+            );
 
-        const resultado = await respuesta.json();
-        console.log("Seguimiento exitoso:", resultado);
+        //NUEVO: Análisis avanzado de errores
+        if (!respuesta.ok) {
 
-        //Actualización visual
-        botonElemento.textContent = "🔔 Siguiendo";
-        botonElemento.style.backgroundColor = "var(--uvg-dark-green)";
+            throw new Error(
+                "No se pudo actualizar la notificación"
+            );
+        }
 
-        alert(`Has comenzado a seguir exitosamente la sección ${numeroSeccion} del curso ${codigoCurso}`);
-    } catch (error) {
-        console.error("Error en la solicitud de seguimiento", error);
+        const respuestaNotificaciones =
+            await fetch(
+                "http://localhost:8080/api/notificaciones"
+            );
 
-        //NUEVO: Restauración del botón
-        botonElemento.disabled = false;
-        botonElemento.textContent = textoOriginal;
 
-        //NUEVO: Alerta con mensaje personalizado
-        alert(error.message || "Ocurrió un error al intentar seguir la sección. Inténtalo de nuevo.");
-    }
+        if (!respuestaNotificaciones.ok) {
+
+            throw new Error(
+                "No se pudieron recargar las notificaciones"
+            );
+        }
+
+
+        const notificaciones =
+            await respuestaNotificaciones.json();
+
+
+        // ACTUALIZAR ÚNICAMENTE LAS ALERTAS
+        mostrarNotificaciones(
+            notificaciones
+        );
+
+
+        // ASEGURAR QUE EL CATÁLOGO SIGA ABIERTO
+        if (modalCatalogo) {
+
+            modalCatalogo.style.display =
+                "block";
+        }
+
+
+        // MANTENER OCULTO EL CATÁLOGO
+        if (panelCatalogo) {
+
+            panelCatalogo.hidden =
+                true;
+        }
+
+
+        // MANTENER VISIBLES LAS ALERTAS
+        if (panelAlertas) {
+
+            panelAlertas.hidden =
+                false;
+        }
+
+
+        // MANTENER LA PESTAÑA CORRECTA ACTIVA
+        if (tabCatalogo) {
+
+            tabCatalogo.classList.remove(
+                "catalogo-tab-activa"
+            );
+        }
+
+
+        if (tabAlertas) {
+
+            tabAlertas.classList.add(
+                "catalogo-tab-activa"
+            );
+        }
+
+
+        // VOLVER VISUALMENTE AL PANEL DE ALERTAS
+        if (modalCatalogo) {
+
+            modalCatalogo.scrollIntoView({
+                behavior: "auto",
+                block: "start"
+            });
+        }
+
+    } catch (error) {
+        console.error(
+            "Error al marcar la notificación como leída:",
+            error
+        );
+    }
 }
