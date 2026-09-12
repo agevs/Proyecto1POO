@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,10 @@ import com.uvg.proyectoasignaciones.repository.CursoRepository;
 import com.uvg.proyectoasignaciones.repository.EstudianteRepository;
 import com.uvg.proyectoasignaciones.repository.SeguimientoRepository;
 
-@CrossOrigin(origins = "http://127.0.0.1:5500")
+@CrossOrigin(origins = {
+        "http://127.0.0.1:5500",
+        "http://localhost:5500"
+})
 @RestController
 @RequestMapping("/api/seguimientos")
 public class SeguimientoRestController {
@@ -122,6 +126,62 @@ public class SeguimientoRestController {
 
         return ResponseEntity.ok(
                 seguimientoGuardado
+        );
+    }
+
+    @PatchMapping("/desactivar")
+    public ResponseEntity<?> desactivarSeguimiento(
+            @RequestBody SolicitudSeguimiento solicitud) {
+
+        String carne = String.valueOf(
+                solicitud.getCarnetEstudiante()
+        );
+
+        Optional<Estudiante> estudianteOptional =
+                estudianteRepository.findByCarne(carne);
+
+        if (estudianteOptional.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body("Estudiante no encontrado");
+        }
+
+        Optional<Curso> cursoOptional =
+                cursoRepository.findById(solicitud.getCodigoCurso());
+
+        if (cursoOptional.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body("Curso no encontrado");
+        }
+
+        Seccion seccionEncontrada = cursoOptional.get()
+                .getSecciones()
+                .stream()
+                .filter(seccion -> seccion.getNumeroSeccion()
+                        == solicitud.getSeccion())
+                .findFirst()
+                .orElse(null);
+
+        if (seccionEncontrada == null) {
+            return ResponseEntity.badRequest()
+                    .body("Sección no encontrada");
+        }
+
+        Optional<Seguimiento> seguimientoOptional =
+                seguimientoRepository
+                        .findByEstudianteCarneAndSeccionIdSeccionAndActivoTrue(
+                                carne,
+                                seccionEncontrada.getIdSeccion()
+                        );
+
+        if (seguimientoOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Seguimiento seguimiento = seguimientoOptional.get();
+        seguimiento.desactivar();
+
+        return ResponseEntity.ok(
+                seguimientoRepository.save(seguimiento)
         );
     }
 
