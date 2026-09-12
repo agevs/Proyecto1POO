@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.uvg.proyectoasignaciones.model.Curso;
 import com.uvg.proyectoasignaciones.repository.CursoRepository;
 
-@CrossOrigin(origins = "http://127.0.0.1:5500")
+@CrossOrigin(origins = {
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "null"
+})
 @RestController
 @RequestMapping("/api/cursos")
 public class CursoRestController {
