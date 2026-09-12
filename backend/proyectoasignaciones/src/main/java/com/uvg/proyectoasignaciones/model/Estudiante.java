@@ -1,13 +1,35 @@
 package com.uvg.proyectoasignaciones.model;
+
 import java.util.ArrayList;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
+
+@Entity
 public class Estudiante extends Usuario {
+
     private String carne;
+
+    @Transient
     private ArrayList<Seguimiento> seguimientos;
+
+    @Transient
     private ArrayList<Notificacion> notificaciones;
 
-    public Estudiante(int idUsuario, String nombre, String correo, String contrasena, String carne) {
-    
+    // Constructor vacío requerido por JPA
+    public Estudiante() {
+        super();
+        this.seguimientos = new ArrayList<>();
+        this.notificaciones = new ArrayList<>();
+    }
+
+    public Estudiante(
+            int idUsuario,
+            String nombre,
+            String correo,
+            String contrasena,
+            String carne) {
+
         super(idUsuario, nombre, correo, contrasena);
 
         this.carne = carne;
@@ -28,7 +50,7 @@ public class Estudiante extends Usuario {
     }
 
     public String getCarne() {
-    return carne;
+        return carne;
     }
 
     public void setCarne(String carne) {
@@ -39,7 +61,9 @@ public class Estudiante extends Usuario {
         return seguimientos;
     }
 
-    public void setSeguimientos(ArrayList<Seguimiento> seguimientos) {
+    public void setSeguimientos(
+            ArrayList<Seguimiento> seguimientos) {
+
         this.seguimientos = seguimientos;
     }
 
@@ -47,7 +71,9 @@ public class Estudiante extends Usuario {
         return notificaciones;
     }
 
-    public void setNotificaciones(ArrayList<Notificacion> notificaciones) {
+    public void setNotificaciones(
+            ArrayList<Notificacion> notificaciones) {
+
         this.notificaciones = notificaciones;
     }
 
@@ -60,5 +86,4 @@ public class Estudiante extends Usuario {
                 ", carne='" + carne + '\'' +
                 '}';
     }
-
 }

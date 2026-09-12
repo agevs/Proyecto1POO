@@ -1,32 +1,52 @@
 package com.uvg.proyectoasignaciones.model;
 
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+
+@MappedSuperclass
 public class Usuario {
+
+    @Id
     private int idUsuario;
+
     private String nombre;
     private String correo;
     private String contrasena;
 
-    public Usuario(int idUsuario, String nombre, String correo, String contrasena) {
-    this.idUsuario = idUsuario;
-    this.nombre = nombre;
-    this.correo = correo;
-    this.contrasena = contrasena;
+    // Constructor vacío requerido por JPA
+    public Usuario() {
     }
 
-    public boolean validarCredenciales(String correo, String contrasena) {
-    return this.correo.equals(correo) && this.contrasena.equals(contrasena);
+    public Usuario(
+            int idUsuario,
+            String nombre,
+            String correo,
+            String contrasena) {
+
+        this.idUsuario = idUsuario;
+        this.nombre = nombre;
+        this.correo = correo;
+        this.contrasena = contrasena;
+    }
+
+    public boolean validarCredenciales(
+            String correo,
+            String contrasena) {
+
+        return this.correo.equals(correo)
+                && this.contrasena.equals(contrasena);
     }
 
     public int getIdUsuario() {
-    return idUsuario;
+        return idUsuario;
     }
 
     public void setIdUsuario(int idUsuario) {
-    this.idUsuario = idUsuario;
+        this.idUsuario = idUsuario;
     }
 
     public String getNombre() {
-    return nombre;
+        return nombre;
     }
 
     public void setNombre(String nombre) {
@@ -57,5 +77,4 @@ public class Usuario {
                 ", correo='" + correo + '\'' +
                 '}';
     }
-
 }
