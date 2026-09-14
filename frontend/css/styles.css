@@ -238,3 +238,10 @@ body {
     color: var(--uvg-dark-green);
     cursor: pointer;
 }
+/* Mensaje cuando el buscador no encuentra cursos */
+.table-custom .fila-sin-resultados td {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 20px;
+    font-weight: 500;
+}
