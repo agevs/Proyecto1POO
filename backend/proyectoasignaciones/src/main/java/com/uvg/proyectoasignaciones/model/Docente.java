@@ -1,9 +1,20 @@
 package com.uvg.proyectoasignaciones.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "docentes")
 public class Docente {
+    @Id
     private int idDocente;
     private String nombre;
     private String correo;
+
+    protected Docente() {
+        // Requerido por JPA. El ID conserva el código institucional.
+    }
 
     public Docente(int idDocente, String nombre, String correo) {
         this.idDocente = idDocente;
