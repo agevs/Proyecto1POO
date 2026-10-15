@@ -249,7 +249,7 @@ function mostrarCursos(
 			);
 
 
-			fila.innerHTML = `<td>${curso.codigoCurso}</td><td>${curso.nombreCurso}<br><small>${seccion.horario}</small></td><td>Sección ${seccion.numeroSeccion}</td><td>${nombreDocente}</td><td><span class="badge-status ${claseEstado}">${seccion.estado}</span></td><td><button type="button" class="btn-ver-ficha" data-codigo="${curso.codigoCurso}" data-seccion="${seccion.numeroSeccion}">Ver Ficha</button><button type="button" class="btn-uvg btn-seguir" data-codigo="${curso.codigoCurso}" data-seccion="${seccion.numeroSeccion}" data-siguiendo="${estaSiguiendo}">${estaSiguiendo ? "🔔 Siguiendo" : "🔔 Seguir"}</button></td>`;
+			fila.innerHTML = `<td>${curso.codigoCurso}</td><td>${curso.nombreCurso}<br><small>${seccion.horario}</small></td><td>Sección ${seccion.numeroSeccion}</td><td>${escaparTexto(nombreDocente)}</td><td><span class="badge-status ${claseEstado}">${seccion.estado}</span></td><td><button type="button" class="btn-ver-ficha" data-codigo="${curso.codigoCurso}" data-seccion="${seccion.numeroSeccion}">Ver Ficha</button><button type="button" class="btn-uvg btn-seguir" data-codigo="${curso.codigoCurso}" data-seccion="${seccion.numeroSeccion}" data-siguiendo="${estaSiguiendo}">${estaSiguiendo ? "🔔 Siguiendo" : "🔔 Seguir"}</button></td>`;
 
 
             tabla.appendChild(fila);
@@ -917,4 +917,10 @@ async function marcarNotificacionComoLeida(
             error
         );
     }
+}
+// RF-10: mostrar nombres ingresados como texto seguro en el catálogo.
+function escaparTexto(valor) {
+    const elemento = document.createElement("span");
+    elemento.textContent = valor ?? "";
+    return elemento.innerHTML;
 }
