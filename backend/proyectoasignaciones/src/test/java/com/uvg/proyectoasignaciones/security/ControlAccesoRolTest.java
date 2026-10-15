@@ -84,4 +84,47 @@ class ControlAccesoRolTest {
             ControlAccesoRol.obtenerRol(null)
         );
     }
+
+    
+    // RF-12: pruebas adicionales de denegacion de acceso
+
+    @Test
+    void estudianteNoPuedeGestionarCursosYSecciones() {
+        assertFalse(ControlAccesoRol.tienePermiso(
+            estudiante,
+            ControlAccesoRol.Permiso.GESTIONAR_CURSOS_SECCIONES
+        ));
+    }
+
+    @Test
+    void administradorPuedeRegistrarDocente() {
+        assertTrue(ControlAccesoRol.tienePermiso(
+            administrador,
+            ControlAccesoRol.Permiso.REGISTRAR_DOCENTE
+        ));
+    }
+
+    @Test
+    void usuarioSinAutenticarNoPuedeGestionarCursos() {
+        assertFalse(ControlAccesoRol.tienePermiso(
+            null,
+            ControlAccesoRol.Permiso.GESTIONAR_CURSOS_SECCIONES
+        ));
+    }
+
+    @Test
+    void permisoNuloDebeSerDenegado() {
+        assertFalse(ControlAccesoRol.tienePermiso(
+            administrador,
+            null
+        ));
+    }
+
+    @Test
+    void estudiantePuedeConsultarNotificaciones() {
+        assertTrue(ControlAccesoRol.tienePermiso(
+            estudiante,
+            ControlAccesoRol.Permiso.CONSULTAR_NOTIFICACIONES
+        ));
+    }
 }

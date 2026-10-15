@@ -90,4 +90,57 @@ class ReglasAutorizacionTest {
             ReglasAutorizacion.esRutaAdministrativa(null)
         );
     }
+
+    // RF-12: pruebas adicionales de seguridad
+
+    @Test
+    void rutaAdministrativaParecidaNoDebeCoincidir() {
+        assertFalse(
+            ReglasAutorizacion.esRutaAdministrativa(
+                "/api/administracion-falsa/cursos"
+            )
+        );
+    }
+
+    @Test
+    void rutaConSeccionVaciaNoDebeCoincidir() {
+        assertNull(
+            ReglasAutorizacion.obtenerPermiso(
+                "PATCH",
+                "/api/administracion/cursos/CC2008/secciones//estado"
+            )
+        );
+    }
+
+    @Test
+    void rutaConCursoVacioNoDebeCoincidir() {
+        assertNull(
+            ReglasAutorizacion.obtenerPermiso(
+                "PATCH",
+                "/api/administracion/cursos//secciones/10/estado"
+            )
+        );
+    }
+
+    @Test
+    void rutaConOperacionAdicionalNoDebeCoincidir() {
+        assertNull(
+            ReglasAutorizacion.obtenerPermiso(
+                "PATCH",
+                "/api/administracion/cursos/CC2008/secciones/10/estado/extra"
+            )
+        );
+    }
+
+    @Test
+    void metodoPatchEnMinusculasDebeCoincidir() {
+        assertEquals(
+            Permiso.GESTIONAR_ESTADO,
+            ReglasAutorizacion.obtenerPermiso(
+                "patch",
+                "/api/administracion/cursos/CC2008/secciones/10/estado"
+            )
+        );
+    }
+
 }
