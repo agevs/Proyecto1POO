@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirmar docente - UVG</title><link rel="stylesheet" href="../css/styles.css">
+<style>main{max-width:850px;margin:40px auto;padding:24px}form{border:1px solid #ddd;padding:24px;margin:24px 0;border-radius:8px}label{display:block;margin:14px 0}input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin-top:6px}button{margin-top:12px}#mensaje{min-height:1.5em}#mensaje[data-error="true"]{color:#a02020}</style>
+</head><body><main>
+<a href="dashboard-asignacion.html">Volver al catálogo</a>
+<h1>Registrar docente confirmado</h1>
+<p>Registra al docente y confirma su asignación a una sección.</p>
+<p id="mensaje" role="status" aria-live="polite">Cargando datos…</p>
+<form id="registro"><h2>1. Registrar docente</h2>
+<label>ID institucional<input id="id-docente" type="number" min="1" max="2147483647" step="1" required></label>
+<label>Nombre<input id="nombre" required maxlength="255"></label>
+<label>Correo<input id="correo" type="email" required maxlength="255"></label>
+<button class="btn-uvg" type="submit">Guardar docente</button></form>
+<form id="confirmacion"><h2>2. Confirmar asignación</h2>
+<label>Curso<select id="curso" required></select></label>
+<label>Sección<select id="seccion" required></select></label>
+<p id="docente-actual"></p>
+<label>Docente<select id="docente" required></select></label>
+<button class="btn-uvg" type="submit" id="confirmar" disabled>Confirmar docente</button></form>
+</main><script src="../js/docentes.js"></script></body></html>

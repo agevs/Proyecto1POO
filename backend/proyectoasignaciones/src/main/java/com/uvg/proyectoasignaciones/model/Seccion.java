@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
+import jakarta.persistence.JoinColumn;
 
 @Entity
 public class Seccion {
@@ -25,7 +25,8 @@ public class Seccion {
     @JsonIgnore
     private Curso curso;
     
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "docente_id")
     private Docente docente;
 
     // Constructor vacío requerido por JPA/Hibernate

@@ -30,6 +30,16 @@ public final class ReglasAutorizacion {
             return null;
         }
 
+        // RF-10: registro, listado y confirmación de docentes.
+        if (ruta.equals("/api/administracion/docentes")
+                && (metodo.equalsIgnoreCase("GET") || metodo.equalsIgnoreCase("POST"))) {
+            return Permiso.REGISTRAR_DOCENTE;
+        }
+        if (metodo.equalsIgnoreCase("PATCH")
+                && ruta.matches("/api/administracion/cursos/[^/]+/secciones/[0-9]+/docente")) {
+            return Permiso.REGISTRAR_DOCENTE;
+        }
+
         // Operación administrativa: cambiar estado.
         // PATCH /api/administracion/cursos/{codigo}
         //       /secciones/{numero}/estado
