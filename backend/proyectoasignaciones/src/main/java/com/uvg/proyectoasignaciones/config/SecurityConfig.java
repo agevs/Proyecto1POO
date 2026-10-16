@@ -3,6 +3,7 @@ package com.uvg.proyectoasignaciones.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -54,9 +55,24 @@ public class SecurityConfig {
                             "/api/auth/login"
                     ).permitAll()
 
-                    // Catalogo publico provisional.
+                    // RF-11: Solo administradores modifican cursos y secciones.
                     .requestMatchers(
-                            "/api/cursos"
+                            HttpMethod.POST,
+                            "/api/cursos",
+                            "/api/cursos/*/secciones"
+                    ).hasRole("ADMINISTRADOR")
+
+                    .requestMatchers(
+                            HttpMethod.PUT,
+                            "/api/cursos/*",
+                            "/api/cursos/secciones/*"
+                    ).hasRole("ADMINISTRADOR")
+
+                    // Consulta publica del catalogo.
+                    .requestMatchers(
+                            HttpMethod.GET,
+                            "/api/cursos",
+                            "/api/cursos/**"
                     ).permitAll()
 
                     // Funciones administrativas.

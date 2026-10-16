@@ -625,8 +625,12 @@ async function cargarNotificaciones() {
 
         const respuesta =
             await fetch(
-                "http://localhost:8080/api/notificaciones"
-            );
+    "http://localhost:8080/api/notificaciones",
+    {
+        method: "GET",
+        credentials: "include"
+    }
+);
 
 
         if (!respuesta.ok) {
@@ -959,8 +963,12 @@ async function marcarNotificacionComoLeida(
         // VOLVER A CONSULTAR LAS NOTIFICACIONES
         const respuestaNotificaciones =
             await fetch(
-                "http://localhost:8080/api/notificaciones"
-            );
+    "http://localhost:8080/api/notificaciones",
+    {
+        method: "GET",
+        credentials: "include"
+    }
+);
 
 
         if (!respuestaNotificaciones.ok) {
