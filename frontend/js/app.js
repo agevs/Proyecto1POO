@@ -1,5 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    // RF-01 + RF-12: verificar la sesion y aplicar permisos visuales.
+    async function verificarSesionDashboard() {
+        const API = "http://localhost:8080/api/auth";
+
+        try {
+            const respuesta = await fetch(`${API}/me`, {
+                method: "GET",
+                credentials: "include"
+            });
+
+            if (!respuesta.ok) {
+                window.ControlRolesVista?.aplicarVistaRol(null);
+                window.location.replace("login.html");
+                return;
+            }
+
+            const usuario = await respuesta.json();
+
+            // El rol proviene de la sesion validada por Spring Security.
+            const rol = usuario.rol;
+
+            window.ControlRolesVista?.aplicarVistaRol(rol);
+
+            console.log("Sesion verificada correctamente.");
+
+        } catch (error) {
+            console.error("No se pudo verificar la sesion:", error);
+            window.ControlRolesVista?.aplicarVistaRol(null);
+            window.location.replace("login.html");
+        }
+    }
+
+    verificarSesionDashboard();
+
+
     // ELEMENTOS DE LA INTERFAZ
     const linkAsignaciones =
         document.getElementById("link-asignaciones");
@@ -99,10 +134,25 @@ async function cargarCursos() {
 
 
         // OBTENER SEGUIMIENTOS ACTIVOS DEL ESTUDIANTE
-        const respuestaSeguimientos =
-            await fetch(
-                "http://localhost:8080/api/seguimientos/estudiante/26594"
-            );
+        const sesionRespuesta = await fetch(
+            "http://localhost:8080/api/auth/me",
+            { credentials: "include" }
+        );
+
+        if (!sesionRespuesta.ok) {
+            throw new Error("No hay sesion activa.");
+        }
+
+        const usuario = await sesionRespuesta.json();
+
+        if (usuario.rol !== "ESTUDIANTE" || !usuario.carne) {
+            throw new Error("Estudiante no autorizado.");
+        }
+
+        const respuestaSeguimientos = await fetch(
+            `http://localhost:8080/api/seguimientos/estudiante/${encodeURIComponent(usuario.carne)}`,
+            { credentials: "include" }
+        );
 
         let seguimientos = [];
 
@@ -370,157 +420,90 @@ function mostrarCursos(
 // RF-04 / RF-05:
 // SEGUIR O DEJAR DE SEGUIR UNA SECCIÓN
 
-async function alternarSeguimiento(
-    codigoCurso,
-    numeroSeccion,
-    botonElemento,
-    estaSiguiendo
-) {
 
-    // Obtener el carné del estudiante desde la sesión.
-    // Se mantiene 26594 como valor por defecto para las pruebas actuales.
-    const idEstudiante =
-        localStorage.getItem("carnetEstudiante") ||
-        localStorage.getItem("idEstudiante") ||
-        26594;
+async function alternarSeguimiento(
+    codigoCurso, numeroSeccion, botonElemento, estaSiguiendo
+) {
+    const API = "http://localhost:8080/api";
+    botonElemento.disabled = true;
 
     try {
+        const sesionRespuesta = await fetch(`${API}/auth/me`, {
+            credentials: "include"
+        });
 
-        // EVITAR DOBLE CLIC
-        botonElemento.disabled = true;
+        if (!sesionRespuesta.ok) {
+            throw new Error("Sesion no valida. Inicia sesion nuevamente.");
+        }
 
+        const usuario = await sesionRespuesta.json();
 
-        const respuesta =
-            await fetch(
-                estaSiguiendo
-                    ? "http://localhost:8080/api/seguimientos/desactivar"
-                    : "http://localhost:8080/api/seguimientos",
-                {
-                    method:
-                        estaSiguiendo
-                            ? "PATCH"
-                            : "POST",
+        if (usuario.rol !== "ESTUDIANTE" || !usuario.carne) {
+            throw new Error("No se pudo verificar el estudiante.");
+        }
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+        const csrfRespuesta = await fetch(`${API}/auth/csrf`, {
+            credentials: "include"
+        });
 
-                    body: JSON.stringify({
+        if (!csrfRespuesta.ok) {
+            throw new Error("No se pudo obtener el token CSRF.");
+        }
 
-                        carnetEstudiante:
-                            idEstudiante,
+        const csrf = await csrfRespuesta.json();
 
-                        codigoCurso:
-                            codigoCurso,
+        if (!csrf.token || !csrf.headerName) {
+            throw new Error("Token CSRF invalido.");
+        }
 
-                        seccion:
-                            parseInt(
-                                numeroSeccion,
-                                10
-                            )
-                    })
-                }
-            );
-
+        const respuesta = await fetch(
+            estaSiguiendo
+                ? `${API}/seguimientos/desactivar`
+                : `${API}/seguimientos`,
+            {
+                method: estaSiguiendo ? "PATCH" : "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    [csrf.headerName]: csrf.token
+                },
+                body: JSON.stringify({
+                    carnetEstudiante: usuario.carne,
+                    codigoCurso: codigoCurso,
+                    seccion: Number(numeroSeccion)
+                })
+            }
+        );
 
         if (!respuesta.ok) {
-
-            const mensajeError =
-                await respuesta.text();
-
-            // CORRECCIÓN:
-            // Los paréntesis aseguran que el operador ternario
-            // se evalúe correctamente.
-            throw new Error(
-                mensajeError ||
-                (
-                    estaSiguiendo
-                        ? "No se pudo dejar de seguir la sección."
-                        : "No se pudo registrar el seguimiento."
-                )
-            );
+            const mensaje = await respuesta.text();
+            throw new Error(`HTTP ${respuesta.status}: ${mensaje}`);
         }
 
+        const resultado = await respuesta.json();
+        console.log("Seguimiento actualizado:", resultado);
 
-        const resultado =
-            await respuesta.json();
+        const nuevoEstado = !estaSiguiendo;
+        botonElemento.dataset.siguiendo = String(nuevoEstado);
+        botonElemento.textContent = nuevoEstado
+            ? "🔔 Siguiendo"
+            : "🔔 Seguir";
 
-
-        console.log(
-            "Seguimiento actualizado:",
-            resultado
-        );
-
-
-        // ACTUALIZAR EL BOTÓN SIN RECARGAR LA PÁGINA
-        const nuevoEstado =
-            !estaSiguiendo;
-
-        botonElemento.dataset.siguiendo =
-            String(nuevoEstado);
-
-        botonElemento.textContent =
-            nuevoEstado
-                ? "🔔 Siguiendo"
-                : "🔔 Seguir";
-
-        botonElemento.disabled =
-            false;
-
-
-        alert(
-            nuevoEstado
-                ? `Ahora sigues la sección ${numeroSeccion} del curso ${codigoCurso}.`
-                : `Has dejado de seguir la sección ${numeroSeccion} del curso ${codigoCurso}.`
-        );
-
+        alert(nuevoEstado
+            ? "Seguimiento registrado correctamente."
+            : "Seguimiento desactivado correctamente.");
 
     } catch (error) {
-
-        console.error(
-            "Error al actualizar seguimiento:",
-            error
-        );
-
-
-        // VOLVER A HABILITAR EL BOTÓN
-        botonElemento.disabled =
-            false;
-
-
-        // CONSERVAR EL ESTADO VISUAL ANTERIOR
-        botonElemento.dataset.siguiendo =
-            String(estaSiguiendo);
-
-        botonElemento.textContent =
-            estaSiguiendo
-                ? "🔔 Siguiendo"
-                : "🔔 Seguir";
-
-
-        let mensajeAlerta =
-            estaSiguiendo
-                ? "Ocurrió un error al intentar dejar de seguir la sección."
-                : "Ocurrió un error al intentar seguir la sección.";
-
-
-        if (
-            error &&
-            error.message
-        ) {
-
-            mensajeAlerta =
-                error.message;
-        }
-
-
-        alert(
-            mensajeAlerta
-        );
+        console.error("Error al actualizar seguimiento:", error);
+        botonElemento.dataset.siguiendo = String(estaSiguiendo);
+        botonElemento.textContent = estaSiguiendo
+            ? "🔔 Siguiendo"
+            : "🔔 Seguir";
+        alert(error.message);
+    } finally {
+        botonElemento.disabled = false;
     }
 }
-
 
 // RF-07:
 // PESTAÑAS CATÁLOGO GENERAL / MIS ALERTAS

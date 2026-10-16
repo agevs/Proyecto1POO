@@ -1,7 +1,9 @@
+
 package com.uvg.proyectoasignaciones.api;
 
 import com.uvg.proyectoasignaciones.model.Estudiante;
 import com.uvg.proyectoasignaciones.service.AutenticacionService;
+import com.uvg.proyectoasignaciones.service.AutorizacionEstudianteService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -27,18 +29,23 @@ import org.springframework.web.bind.annotation.*;
 public class AutenticacionRestController {
 
     private final AutenticacionService autenticacionService;
+    private final AutorizacionEstudianteService autorizacionEstudianteService;
 
     public AutenticacionRestController(
-            AutenticacionService autenticacionService) {
+            AutenticacionService autenticacionService,
+            AutorizacionEstudianteService autorizacionEstudianteService) {
 
         this.autenticacionService = autenticacionService;
+        this.autorizacionEstudianteService = autorizacionEstudianteService;
     }
 
+    // RF-01: Datos recibidos para iniciar sesion.
     public record SolicitudLogin(
             String correo,
             String contrasena) {
     }
 
+    // RF-01: Respuesta del inicio de sesion.
     public record RespuestaLogin(
             int idUsuario,
             String nombre,
@@ -47,6 +54,7 @@ public class AutenticacionRestController {
             String rol) {
     }
 
+    // RF-01: INICIAR SESION
     @PostMapping("/login")
     public ResponseEntity<?> iniciarSesion(
             @RequestBody SolicitudLogin solicitud,
@@ -101,7 +109,7 @@ public class AutenticacionRestController {
 
         HttpSession sesion = request.getSession(true);
 
-        // Conservar identificador del estudiante.
+        // Conservar identificador y rol del estudiante.
         sesion.setAttribute(
                 "usuarioId",
                 estudiante.getIdUsuario()
@@ -129,6 +137,7 @@ public class AutenticacionRestController {
         );
     }
 
+    // RF-01: CERRAR SESION
     @PostMapping("/logout")
     public ResponseEntity<?> cerrarSesion(
             HttpServletRequest request) {
@@ -146,6 +155,7 @@ public class AutenticacionRestController {
         );
     }
 
+    // RF-01 + RF-12: CONSULTAR SESION AUTENTICADA
     @GetMapping("/me")
     public ResponseEntity<?> obtenerSesion(
             HttpServletRequest request) {
@@ -168,15 +178,33 @@ public class AutenticacionRestController {
             ));
         }
 
+        // Obtener el estudiante desde la identidad
+        // autenticada por Spring Security.
+        Optional<Estudiante> estudiante =
+                autorizacionEstudianteService
+                        .obtenerEstudianteAutenticado();
+
+        if (estudiante.isEmpty()) {
+            return ResponseEntity.status(
+                    HttpStatus.FORBIDDEN
+            ).body(Map.of(
+                    "mensaje", "Estudiante no autorizado"
+            ));
+        }
+
+        Estudiante estudianteAutenticado = estudiante.get();
+
+        // Devolver el carne real del estudiante.
+        // No utilizar localStorage ni valores fijos.
         return ResponseEntity.ok(
                 Map.of(
                         "idUsuario",
-                        sesion.getAttribute("usuarioId"),
+                        estudianteAutenticado.getIdUsuario(),
                         "rol",
-                        sesion.getAttribute("rol")
+                        "ESTUDIANTE",
+                        "carne",
+                        estudianteAutenticado.getCarne()
                 )
         );
     }
 }
-
-
