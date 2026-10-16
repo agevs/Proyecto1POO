@@ -1,4 +1,7 @@
+
 package com.uvg.proyectoasignaciones.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
@@ -11,9 +14,12 @@ public class Usuario {
 
     private String nombre;
     private String correo;
+
+    // RF-01: No exponer contrasenas ni hashes en JSON.
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String contrasena;
 
-    // Constructor vacío requerido por JPA
+    // Constructor vacio requerido por JPA
     public Usuario() {
     }
 

@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Iniciar sesión - UVG</title>
+
+    <link rel="stylesheet"
+          href="../css/styles.css?v=2">
+
+    <style>
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            background: #f4f6f5;
+        }
+
+        .login-card {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: #208454;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+        }
+
+        .login-form label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 13px;
+            background: #208454;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-form button:hover {
+            background: #175d3c;
+        }
+
+        .login-form button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .login-error {
+            color: #991b1b;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="login-page">
+        <section class="login-card">
+
+            <div class="login-header">
+                <h1>UVG</h1>
+                <h2>Portal de Asignaciones</h2>
+                <p>Inicia sesión con tu cuenta estudiantil</p>
+            </div>
+
+            <form id="login-form" class="login-form">
+
+                <label for="correo">Correo electrónico</label>
+                <input
+                    type="email"
+                    id="correo"
+                    name="correo"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="contrasena">Contraseña</label>
+                <input
+                    type="password"
+                    id="contrasena"
+                    name="contrasena"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit" id="btn-login">
+                    INICIAR SESIÓN
+                </button>
+
+                <p id="login-error"
+                   class="login-error"
+                   role="alert"
+                   aria-live="polite"></p>
+
+            </form>
+        </section>
+    </main>
+
+    <script src="../js/login.js?v=1"></script>
+</body>
+</html>

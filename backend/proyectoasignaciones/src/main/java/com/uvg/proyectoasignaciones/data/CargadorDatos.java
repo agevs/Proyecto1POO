@@ -1,7 +1,9 @@
+
 package com.uvg.proyectoasignaciones.data;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.uvg.proyectoasignaciones.model.Curso;
 import com.uvg.proyectoasignaciones.model.Estudiante;
@@ -14,19 +16,22 @@ public class CargadorDatos implements CommandLineRunner {
 
     private final CursoRepository cursoRepository;
     private final EstudianteRepository estudianteRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public CargadorDatos(
             CursoRepository cursoRepository,
-            EstudianteRepository estudianteRepository) {
+            EstudianteRepository estudianteRepository,
+            PasswordEncoder passwordEncoder) {
 
         this.cursoRepository = cursoRepository;
         this.estudianteRepository = estudianteRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
 
-        // CARGAR CURSO Y SECCION INICIAL
+        // Crear curso y seccion inicial si no existen
         if (cursoRepository.count() == 0) {
 
             Curso cursoPOO = new Curso(
@@ -43,31 +48,48 @@ public class CargadorDatos implements CommandLineRunner {
             );
 
             cursoPOO.agregarSeccion(seccion10);
-
             cursoRepository.save(cursoPOO);
 
             System.out.println(
-                    "Curso y sección inicial guardados en SQLite."
+                    "Curso y seccion inicial guardados en SQLite."
             );
         }
 
-        // CARGAR ESTUDIANTE INICIAL
+        // Crear estudiante de prueba solo si no existe
         if (estudianteRepository.findByCarne("26594").isEmpty()) {
+
+            String contrasenaInicial =
+                    System.getenv("UVG_TEST_PASSWORD");
+
+            if (contrasenaInicial == null ||
+                    contrasenaInicial.isBlank()) {
+
+                System.out.println(
+                    "No se creo el estudiante de prueba: " +
+                    "UVG_TEST_PASSWORD no esta configurada."
+                );
+
+                return;
+            }
+
+            String hash = passwordEncoder.encode(
+                    contrasenaInicial
+            );
 
             Estudiante estudiante = new Estudiante(
                     1,
                     "Margarita de los Angeles Avilés González",
                     "estudiante@uvg.edu.gt",
-                    "1234",
+                    hash,
                     "26594"
             );
 
             estudianteRepository.save(estudiante);
 
             System.out.println(
-                    "Estudiante inicial guardado en SQLite."
+                    "Estudiante inicial guardado con BCrypt."
             );
-                }
         }
+    }
 }
 
