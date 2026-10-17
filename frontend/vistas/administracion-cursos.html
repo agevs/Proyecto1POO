@@ -16,11 +16,43 @@
         button { margin-top: 12px; }
         #mensaje { min-height: 1.5em; }
         #mensaje[data-error="true"] { color: #a02020; }
-    </style>
+
+.navegacion-admin {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 16px 20px;
+    background: #293b4d;
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 28px;
+}
+.navegacion-admin a {
+    color: white;
+    text-decoration: none;
+    padding: 9px 12px;
+    border-radius: 5px;
+}
+.navegacion-admin a:hover,
+.navegacion-admin a[aria-current="page"] {
+    background: #198754;
+}
+</style>
 </head>
 <body>
 <main>
-    <a href="administracion-docentes.html">Volver a docentes</a>
+
+<nav class="navegacion-admin" aria-label="Navegacion administrativa">
+    <strong>UVG | Administracion</strong>
+    <a href="administracion-docentes.html">
+        Docentes
+    </a>
+    <a href="administracion-cursos.html" aria-current="page">
+        Cursos y secciones
+    </a>
+</nav>
+
     <h1>Administración de cursos y secciones</h1>
     <p>RF-11: Registro y actualización con persistencia en SQLite.</p>
 

@@ -3,8 +3,40 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Confirmar docente - UVG</title><link rel="stylesheet" href="../css/styles.css">
 <style>main{max-width:850px;margin:40px auto;padding:24px}form{border:1px solid #ddd;padding:24px;margin:24px 0;border-radius:8px}label{display:block;margin:14px 0}input,select{display:block;box-sizing:border-box;width:100%;padding:10px;margin-top:6px}button{margin-top:12px}#mensaje{min-height:1.5em}#mensaje[data-error="true"]{color:#a02020}</style>
+
+<style>
+.navegacion-admin {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 16px 20px;
+    background: #293b4d;
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 28px;
+}
+.navegacion-admin a {
+    color: white;
+    text-decoration: none;
+    padding: 9px 12px;
+    border-radius: 5px;
+}
+.navegacion-admin a:hover,
+.navegacion-admin a[aria-current="page"] {
+    background: #198754;
+}
+</style>
 </head><body><main>
-<a href="dashboard-asignacion.html">Volver al catálogo</a>
+<nav class="navegacion-admin" aria-label="Navegacion administrativa">
+    <strong>UVG | Administracion</strong>
+    <a href="administracion-docentes.html" aria-current="page">
+        Docentes
+    </a>
+    <a href="administracion-cursos.html">
+        Cursos y secciones
+    </a>
+</nav>
 <h1>Registrar docente confirmado</h1>
 <p>Registra al docente y confirma su asignación a una sección.</p>
 <p id="mensaje" role="status" aria-live="polite">Cargando datos…</p>
