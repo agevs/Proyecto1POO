@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Administrar cursos - UVG</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        main { max-width: 850px; margin: 40px auto; padding: 24px; }
+        form { border: 1px solid #ddd; padding: 24px; margin: 24px 0; border-radius: 8px; }
+        label { display: block; margin: 14px 0; }
+        input, select {
+            display: block; box-sizing: border-box;
+            width: 100%; padding: 10px; margin-top: 6px;
+        }
+        button { margin-top: 12px; }
+        #mensaje { min-height: 1.5em; }
+        #mensaje[data-error="true"] { color: #a02020; }
+    </style>
+</head>
+<body>
+<main>
+    <a href="administracion-docentes.html">Volver a docentes</a>
+    <h1>Administración de cursos y secciones</h1>
+    <p>RF-11: Registro y actualización con persistencia en SQLite.</p>
+
+    <p id="mensaje" role="status" aria-live="polite">Cargando datos...</p>
+
+    <form id="crear-curso">
+        <h2>1. Registrar curso</h2>
+        <label>Código
+            <input id="nuevo-codigo" required maxlength="255">
+        </label>
+        <label>Nombre
+            <input id="nuevo-nombre" required maxlength="255">
+        </label>
+        <label>Créditos
+            <input id="nuevo-creditos" type="number" min="1" required>
+        </label>
+        <button class="btn-uvg" type="submit">Guardar curso</button>
+    </form>
+
+    <form id="editar-curso">
+        <h2>2. Actualizar curso</h2>
+        <label>Curso
+            <select id="curso-editar" required></select>
+        </label>
+        <label>Nombre
+            <input id="editar-nombre" required maxlength="255">
+        </label>
+        <label>Créditos
+            <input id="editar-creditos" type="number" min="1" required>
+        </label>
+        <button class="btn-uvg" type="submit">Actualizar curso</button>
+    </form>
+
+    <form id="crear-seccion">
+        <h2>3. Agregar sección</h2>
+        <label>Curso
+            <select id="curso-seccion" required></select>
+        </label>
+        <label>Número de sección
+            <input id="nueva-seccion" type="number" min="1" required>
+        </label>
+        <label>Horario
+            <input id="nuevo-horario" required maxlength="255">
+        </label>
+        <label>Cupos disponibles
+            <input id="nuevos-cupos" type="number" min="0" required>
+        </label>
+        <label>Estado
+            <select id="nuevo-estado">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Confirmado">Confirmado</option>
+            </select>
+        </label>
+        <button class="btn-uvg" type="submit">Guardar sección</button>
+    </form>
+
+    <form id="editar-seccion">
+    <h2>4. Actualizar sección</h2>
+
+    <label>Curso
+        <select id="curso-seccion-editar" required></select>
+    </label>
+
+    <label>Sección
+        <select id="seccion-editar" required></select>
+    </label>
+
+    <label>Número de sección
+        <input id="editar-numero" type="number" min="1" required>
+    </label>
+
+    <label>Horario
+        <input id="editar-horario" required maxlength="255">
+    </label>
+
+    <label>Cupos disponibles
+        <input id="editar-cupos" type="number" min="0" required>
+    </label>
+
+    <label>Estado
+        <select id="editar-estado">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Confirmado">Confirmado</option>
+        </select>
+    </label>
+
+    <button class="btn-uvg" type="submit">
+        Actualizar sección
+    </button>
+</form>
+
+</main>
+<script src="../js/administracion-cursos.js"></script>
+</body>
+</html>
