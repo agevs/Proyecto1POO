@@ -3,6 +3,7 @@ package com.uvg.proyectoasignaciones.api;
 
 import com.uvg.proyectoasignaciones.model.Estudiante;
 import com.uvg.proyectoasignaciones.service.AutenticacionService;
+import com.uvg.proyectoasignaciones.service.AutenticacionAdministradorService;
 import com.uvg.proyectoasignaciones.service.AutorizacionEstudianteService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,13 +30,16 @@ import org.springframework.web.bind.annotation.*;
 public class AutenticacionRestController {
 
     private final AutenticacionService autenticacionService;
+    private final AutenticacionAdministradorService administradorService;
     private final AutorizacionEstudianteService autorizacionEstudianteService;
 
     public AutenticacionRestController(
             AutenticacionService autenticacionService,
+            AutenticacionAdministradorService administradorService,
             AutorizacionEstudianteService autorizacionEstudianteService) {
 
         this.autenticacionService = autenticacionService;
+        this.administradorService = administradorService;
         this.autorizacionEstudianteService = autorizacionEstudianteService;
     }
 
@@ -65,6 +69,48 @@ public class AutenticacionRestController {
                     .body(Map.of(
                             "mensaje", "Datos obligatorios"
                     ));
+        }
+
+        if (administradorService.autenticar(
+                solicitud.correo(), solicitud.contrasena())) {
+
+            Authentication autenticacion =
+                    new UsernamePasswordAuthenticationToken(
+                            solicitud.correo().trim(),
+                            null,
+                            List.of(new SimpleGrantedAuthority(
+                                    "ROLE_ADMINISTRADOR"))
+                    );
+
+            SecurityContext contexto =
+                    SecurityContextHolder.createEmptyContext();
+            contexto.setAuthentication(autenticacion);
+
+            HttpSession anterior = request.getSession(false);
+            if (anterior != null) {
+                anterior.invalidate();
+            }
+
+            HttpSession sesion = request.getSession(true);
+            sesion.setAttribute("usuarioId", -1);
+            sesion.setAttribute("rol", "ADMINISTRADOR");
+            sesion.setAttribute(
+                    HttpSessionSecurityContextRepository
+                            .SPRING_SECURITY_CONTEXT_KEY,
+                    contexto
+            );
+
+            SecurityContextHolder.setContext(contexto);
+
+            return ResponseEntity.ok(
+                    new RespuestaLogin(
+                            -1,
+                            "Administrador",
+                            solicitud.correo().trim(),
+                            "",
+                            "ADMINISTRADOR"
+                    )
+            );
         }
 
         Optional<Estudiante> resultado =
@@ -175,6 +221,20 @@ public class AutenticacionRestController {
                     HttpStatus.UNAUTHORIZED
             ).body(Map.of(
                     "mensaje", "No hay sesion activa"
+            ));
+        }
+
+        boolean esAdministrador = autenticacion.getAuthorities()
+                .stream()
+                .anyMatch(a -> a.getAuthority()
+                        .equals("ROLE_ADMINISTRADOR"));
+
+        if (esAdministrador
+                && "ADMINISTRADOR".equals(sesion.getAttribute("rol"))) {
+            return ResponseEntity.ok(Map.of(
+                    "idUsuario", -1,
+                    "rol", "ADMINISTRADOR",
+                    "correo", autenticacion.getName()
             ));
         }
 

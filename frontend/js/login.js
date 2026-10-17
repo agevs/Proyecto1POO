@@ -82,7 +82,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // 4. No almacenar contrasenas en localStorage.
-            window.location.href = "splash.html";
+            const usuario = await sesion.json();
+
+            if (usuario.rol === "ADMINISTRADOR") {
+                window.location.href = "administracion-docentes.html";
+            } else if (usuario.rol === "ESTUDIANTE") {
+                window.location.href = "splash.html";
+            } else {
+                mensajeError.textContent =
+                    "El usuario no tiene un rol autorizado.";
+            }
 
         } catch (error) {
 
