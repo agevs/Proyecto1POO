@@ -374,6 +374,81 @@ function mostrarCursos(
     });
 
 
+
+    // RF-02: MOSTRAR FICHA DEL CURSO
+    const botonesFicha = tabla.querySelectorAll(".btn-ver-ficha");
+
+    botonesFicha.forEach(boton => {
+        boton.addEventListener("click", () => {
+            const codigo = boton.dataset.codigo;
+            const numero = boton.dataset.seccion;
+
+            const curso = cursos.find(
+                c => String(c.codigoCurso) === codigo
+            );
+
+            const seccion = curso?.secciones?.find(
+                s => String(s.numeroSeccion) === numero
+            );
+
+            if (!curso || !seccion) {
+                alert("No se encontro la ficha del curso.");
+                return;
+            }
+
+            const docente = seccion.docente?.nombre || "STAFF";
+
+
+            const anterior = document.getElementById("ficha-curso-modal");
+            if (anterior) anterior.remove();
+
+            const fondo = document.createElement("div");
+            fondo.id = "ficha-curso-modal";
+            fondo.style.cssText = "position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px;";
+
+            const tarjeta = document.createElement("div");
+            tarjeta.style.cssText = "background:white;color:#293b4d;border-radius:12px;padding:28px;width:100%;max-width:520px;max-height:85vh;overflow:auto;box-shadow:0 10px 35px #0003;";
+
+            const titulo = document.createElement("h2");
+            titulo.textContent = "Ficha del curso";
+            titulo.style.marginTop = "0";
+            tarjeta.appendChild(titulo);
+
+            const campos = [
+                ["Codigo", curso.codigoCurso],
+                ["Curso", curso.nombreCurso],
+                ["Creditos", curso.creditos ?? "No disponible"],
+                ["Seccion", seccion.numeroSeccion],
+                ["Horario", seccion.horario],
+                ["Docente", docente],
+                ["Cupos disponibles", seccion.cuposDisponibles],
+                ["Estado", seccion.estado]
+            ];
+
+            campos.forEach(([etiqueta, valor]) => {
+                const linea = document.createElement("p");
+                const nombre = document.createElement("strong");
+                nombre.textContent = etiqueta + ": ";
+                linea.appendChild(nombre);
+                linea.appendChild(document.createTextNode(String(valor ?? "No disponible")));
+                tarjeta.appendChild(linea);
+            });
+
+            const cerrar = document.createElement("button");
+            cerrar.textContent = "Cerrar";
+            cerrar.style.cssText = "background:#198754;color:white;border:0;border-radius:6px;padding:12px 28px;cursor:pointer;float:right;";
+            cerrar.onclick = () => fondo.remove();
+            tarjeta.appendChild(cerrar);
+
+            fondo.addEventListener("click", evento => {
+                if (evento.target === fondo) fondo.remove();
+            });
+
+            fondo.appendChild(tarjeta);
+            document.body.appendChild(fondo);
+        });
+    });
+
     // CONFIGURAR BOTONES SEGUIR
     const botonesSeguir =
         tabla.querySelectorAll(

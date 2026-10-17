@@ -7,17 +7,52 @@ function mensaje(texto, error = false) {
     porId("mensaje").dataset.error = String(error);
 }
 async function solicitar(ruta, metodo = "GET", datos) {
+    const headers = {};
+
+    if (datos !== undefined) {
+        headers["Content-Type"] = "application/json";
+    }
+
+    if (!["GET", "HEAD", "OPTIONS"].includes(metodo)) {
+        const csrfRespuesta = await fetch(API + "/auth/csrf", {
+            credentials: "include"
+        });
+
+        if (!csrfRespuesta.ok) {
+            throw new Error("No se pudo obtener el token CSRF.");
+        }
+
+        const csrf = await csrfRespuesta.json();
+
+        if (!csrf.token) {
+            throw new Error("Token CSRF no disponible.");
+        }
+
+        headers[csrf.headerName || "X-XSRF-TOKEN"] = csrf.token;
+    }
+
     const respuesta = await fetch(API + ruta, {
         method: metodo,
-        headers: datos ? {"Content-Type": "application/json"} : {},
-        body: datos ? JSON.stringify(datos) : undefined
+        credentials: "include",
+        headers,
+        body: datos !== undefined ? JSON.stringify(datos) : undefined
     });
+
     if (!respuesta.ok) {
-        const errores = {400: "Revisa los datos obligatorios y el correo.",
-            404: "El curso, la sección o el docente ya no existe. Recarga la página.",
-            409: "Ya existe un docente con ese ID. Selecciónalo en la lista."};
-        throw new Error(errores[respuesta.status] || "No se pudo guardar o consultar la información.");
+        const errores = {
+            400: "Revisa los datos obligatorios.",
+            401: "Debes iniciar sesion.",
+            403: "No tienes permisos de administrador.",
+            404: "El recurso solicitado no existe.",
+            409: "Ya existe un docente con ese ID."
+        };
+
+        throw new Error(
+            errores[respuesta.status] ||
+            "No se pudo completar la operacion."
+        );
     }
+
     return respuesta.json();
 }
 function opciones(id, valores, valor, texto) {
