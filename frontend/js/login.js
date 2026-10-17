@@ -84,9 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // 4. No almacenar contrasenas en localStorage.
             const usuario = await sesion.json();
 
-            if (usuario.rol === "ADMINISTRADOR") {
-                window.location.href = "administracion-docentes.html";
-            } else if (usuario.rol === "ESTUDIANTE") {
+            if (usuario.rol === "ADMINISTRADOR" ||
+                usuario.rol === "ESTUDIANTE") {
                 window.location.href = "splash.html";
             } else {
                 mensajeError.textContent =
