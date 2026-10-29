@@ -70,13 +70,14 @@ async function cargarCursos() {
     const etiqueta = c =>
         `${c.codigoCurso} - ${c.nombreCurso}`;
 
-    ["curso-editar", "curso-seccion", "curso-seccion-editar"]
+    ["curso-editar", "curso-seccion", "curso-seccion-editar", "curso-estado"]
         .forEach(id => llenarSelect(
             id, catalogo, c => c.codigoCurso, etiqueta
         ));
 
     actualizarCurso();
     actualizarSecciones();
+    actualizarSeccionesEstado();
 }
 
 function actualizarCurso() {
@@ -115,7 +116,6 @@ function actualizarDatosSeccion() {
     campo("editar-numero").value = seccion?.numeroSeccion ?? "";
     campo("editar-horario").value = seccion?.horario || "";
     campo("editar-cupos").value = seccion?.cuposDisponibles ?? "";
-    campo("editar-estado").value = seccion?.estado || "Pendiente";
 }
 
 async function ejecutar(formulario, operacion) {
@@ -195,6 +195,20 @@ campo("editar-seccion").addEventListener("submit", evento => {
     ejecutar(evento.currentTarget, async () => {
         const id = campo("seccion-editar").value;
 
+        // RF-11: conservar el estado actual de la seccion.
+        const codigoCurso = campo("curso-seccion-editar").value;
+        const curso = catalogo.find(
+            c => c.codigoCurso === codigoCurso
+        );
+
+        const seccion = curso?.secciones?.find(
+            s => String(s.idSeccion) === id
+        );
+
+        if (!seccion) {
+            throw new Error("Selecciona una seccion valida.");
+        }
+
         await solicitar(
             `/cursos/secciones/${encodeURIComponent(id)}`,
             "PUT",
@@ -202,7 +216,7 @@ campo("editar-seccion").addEventListener("submit", evento => {
                 numeroSeccion: Number(campo("editar-numero").value),
                 horario: campo("editar-horario").value.trim(),
                 cuposDisponibles: Number(campo("editar-cupos").value),
-                estado: campo("editar-estado").value
+                estado: seccion.estado
             }
         );
     });
@@ -243,3 +257,85 @@ iniciar().then(() => {
     }
 });
 
+
+// RF-09: Seleccionar las secciones del curso.
+function actualizarSeccionesEstado() {
+    const codigo = campo("curso-estado").value;
+
+    const curso = catalogo.find(
+        c => c.codigoCurso === codigo
+    );
+
+    llenarSelect(
+        "seccion-estado",
+        curso?.secciones || [],
+        s => s.idSeccion,
+        s => `Seccion ${s.numeroSeccion} - ${s.estado}`
+    );
+
+    actualizarEstadoSeleccionado();
+}
+
+// RF-09: Mostrar el estado actual de la seccion.
+function actualizarEstadoSeleccionado() {
+    const codigo = campo("curso-estado").value;
+    const id = campo("seccion-estado").value;
+
+    const curso = catalogo.find(
+        c => c.codigoCurso === codigo
+    );
+
+    const seccion = curso?.secciones?.find(
+        s => String(s.idSeccion) === id
+    );
+
+    campo("nuevo-estado-rf09").value =
+        seccion?.estado === "Confirmado"
+            ? "Confirmado"
+            : "Pendiente";
+}
+
+// RF-09: Eventos de seleccion.
+campo("curso-estado").addEventListener(
+    "change",
+    actualizarSeccionesEstado
+);
+
+campo("seccion-estado").addEventListener(
+    "change",
+    actualizarEstadoSeleccionado
+);
+
+// RF-09: Guardar el cambio mediante PATCH.
+campo("cambiar-estado-seccion").addEventListener(
+    "submit",
+    evento => {
+        evento.preventDefault();
+
+        ejecutar(evento.currentTarget, async () => {
+            const codigo = campo("curso-estado").value;
+            const id = campo("seccion-estado").value;
+
+            const curso = catalogo.find(
+                c => c.codigoCurso === codigo
+            );
+
+            const seccion = curso?.secciones?.find(
+                s => String(s.idSeccion) === id
+            );
+
+            if (!seccion) {
+                throw new Error("Selecciona una seccion valida.");
+            }
+
+            const estado = campo("nuevo-estado-rf09").value;
+
+            await solicitar(
+                `/administracion/cursos/${encodeURIComponent(codigo)}` +
+                `/secciones/${seccion.numeroSeccion}/estado`,
+                "PATCH",
+                { estado }
+            );
+        });
+    }
+);

@@ -88,7 +88,9 @@ public class CursoRestController {
             seccion.setNumeroSeccion(seccionDetalles.getNumeroSeccion());
             seccion.setHorario(seccionDetalles.getHorario());
             seccion.setCuposDisponibles(seccionDetalles.getCuposDisponibles());
-            seccion.setEstado(seccionDetalles.getEstado());
+            // RF-09: el estado solo se modifica mediante
+            // el endpoint administrativo que genera notificaciones.
+            // RF-11 conserva el estado actual de la seccion.
 
             Seccion seccionActualizada = seccionRepository.save(seccion);
             return ResponseEntity.ok(seccionActualizada);

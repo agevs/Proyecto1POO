@@ -140,17 +140,36 @@
         <input id="editar-cupos" type="number" min="0" required>
     </label>
 
-    <label>Estado
-        <select id="editar-estado">
-            <option value="Pendiente">Pendiente</option>
-            <option value="Confirmado">Confirmado</option>
-        </select>
-    </label>
+
 
     <button class="btn-uvg" type="submit">
         Actualizar sección
     </button>
 </form>
+
+    <!-- RF-09: Cambio de estado y notificaciones -->
+    <form id="cambiar-estado-seccion">
+        <h2>5. Cambiar estado de sección (RF-09)</h2>
+
+        <label>Curso
+            <select id="curso-estado" required></select>
+        </label>
+
+        <label>Sección
+            <select id="seccion-estado" required></select>
+        </label>
+
+        <label>Nuevo estado
+            <select id="nuevo-estado-rf09" required>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Confirmado">Confirmado</option>
+            </select>
+        </label>
+
+        <button class="btn-uvg" type="submit">
+            Guardar cambio de estado
+        </button>
+    </form>
 
 </main>
 <script src="../js/administracion-cursos.js"></script>

@@ -95,13 +95,22 @@ public class AdministracionRestController {
                     .build();
         }
 
-        // ACTUALIZAR ESTADO
-        String nuevoEstado =
-                solicitud.getEstado().trim();
+        // RF-09: VALIDAR ESTADOS PERMITIDOS
+        String nuevoEstado = solicitud.getEstado().trim();
 
-        seccionEncontrada.actualizarEstado(
-                nuevoEstado
-        );
+        if (!nuevoEstado.equals("Pendiente")
+                && !nuevoEstado.equals("Confirmado")) {
+            return ResponseEntity.badRequest()
+                    .body("Estado no permitido");
+        }
+
+        // Evitar cambios y notificaciones innecesarias.
+        if (nuevoEstado.equals(seccionEncontrada.getEstado())) {
+            return ResponseEntity.ok(seccionEncontrada);
+        }
+
+        // Actualizar el estado de la seccion.
+        seccionEncontrada.actualizarEstado(nuevoEstado);
 
         // GUARDAR CAMBIO EN SQLITE
         cursoRepository.save(curso);
