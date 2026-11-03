@@ -81,18 +81,37 @@ public class CursoRestController {
     }
 
     @PutMapping ("/secciones/{idSeccion}")
-    public ResponseEntity<Seccion> actualizarSeccion(@PathVariable Long idSeccion, @RequestBody Seccion seccionDetalles) {
-        Optional<Seccion> seccionOpt = seccionRepository.findById(idSeccion);
-        if (seccionOpt.isPresent()) {
-            Seccion seccion = seccionOpt.get();
-            
-            Seccion seccionActualizada = seccionRepository.save(seccion);
-            return ResponseEntity.ok(seccionActualizada);
-        } else {
+    public ResponseEntity<Seccion> actualizarSeccion(
+            @PathVariable Long idSeccion,
+            @RequestBody Seccion seccionDetalles) {
+
+        Optional<Seccion> seccionOpt =
+                seccionRepository.findById(idSeccion);
+
+        if (seccionOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-    
+
+        Seccion seccion = seccionOpt.get();
+
+        // RF-11: actualizar datos generales.
+        seccion.setNumeroSeccion(
+                seccionDetalles.getNumeroSeccion()
+        );
+        seccion.setHorario(
+                seccionDetalles.getHorario()
+        );
+        seccion.setCuposDisponibles(
+                seccionDetalles.getCuposDisponibles()
+        );
+
+        // RF-09: conservar el estado actual.
+        // Los cambios de estado se realizan mediante
+        // el endpoint administrativo que genera notificaciones.
+
+        Seccion actualizada =
+                seccionRepository.save(seccion);
+
+        return ResponseEntity.ok(actualizada);
     }
-
-
 }

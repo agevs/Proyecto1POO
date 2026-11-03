@@ -53,6 +53,22 @@
                 </li>
 
             </ul>
+            <button
+             id= "btn-cerrar-sesion"
+                type= "button"
+                style= "width: 100%;
+                margin-top: 24px;
+                padding: 12px;
+                background: transparent;
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+                "
+                >
+              Cerrar Sesión
+            </button>
         </div>
 
         <!-- CONTENIDO PRINCIPAL -->
@@ -72,13 +88,18 @@
             ">
 
                 <h2>Asignación de cursos</h2>
+                <a href="administracion-docentes.html"
+                data-rol-permitido="ADMINISTRADOR"
+                hidden>
+                    Administrar docentes
+                </a>
 
                 <button
                     class="btn-uvg"
-                    id="btn-abrir-catalogo">
-
+                    id="btn-abrir-catalogo"
+                    data-rol-permitido="ESTUDIANTE"
+                    hidden>
                     ASIGNACIÓN DE CURSOS
-
                 </button>
 
             </div>
@@ -256,8 +277,9 @@
         http://localhost:8080/api/cursos
     -->
 
+    <script src="../js/control-roles.js"></script>
     <script src="../js/app.js?v=3"></script>
+<script src="../js/logout.js"></script>
 
 </body>
-
 </html>

@@ -1,10 +1,11 @@
+
 package com.uvg.proyectoasignaciones.api;
 
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,11 +21,8 @@ import com.uvg.proyectoasignaciones.model.Seguimiento;
 import com.uvg.proyectoasignaciones.repository.CursoRepository;
 import com.uvg.proyectoasignaciones.repository.EstudianteRepository;
 import com.uvg.proyectoasignaciones.repository.SeguimientoRepository;
+import com.uvg.proyectoasignaciones.service.AutorizacionEstudianteService;
 
-@CrossOrigin(origins = {
-        "http://127.0.0.1:5500",
-        "http://localhost:5500"
-})
 @RestController
 @RequestMapping("/api/seguimientos")
 public class SeguimientoRestController {
@@ -32,15 +30,18 @@ public class SeguimientoRestController {
     private final SeguimientoRepository seguimientoRepository;
     private final EstudianteRepository estudianteRepository;
     private final CursoRepository cursoRepository;
+    private final AutorizacionEstudianteService autorizacionEstudianteService;
 
     public SeguimientoRestController(
             SeguimientoRepository seguimientoRepository,
             EstudianteRepository estudianteRepository,
-            CursoRepository cursoRepository) {
+            CursoRepository cursoRepository,
+            AutorizacionEstudianteService autorizacionEstudianteService) {
 
         this.seguimientoRepository = seguimientoRepository;
         this.estudianteRepository = estudianteRepository;
         this.cursoRepository = cursoRepository;
+        this.autorizacionEstudianteService = autorizacionEstudianteService;
     }
 
     // RF-04: CREAR O REACTIVAR SEGUIMIENTO
@@ -48,35 +49,41 @@ public class SeguimientoRestController {
     public ResponseEntity<?> crearSeguimiento(
             @RequestBody SolicitudSeguimiento solicitud) {
 
+        if (solicitud == null) {
+            return ResponseEntity.badRequest()
+                    .body("Solicitud obligatoria");
+        }
+
         String carne = String.valueOf(
                 solicitud.getCarnetEstudiante()
         );
 
-        // Buscar estudiante
+        // RF-01: Verificar identidad antes de modificar datos.
+        if (!autorizacionEstudianteService.puedeAccederACarne(carne)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No autorizado para modificar seguimientos de este estudiante");
+        }
+
         Optional<Estudiante> estudianteOptional =
                 estudianteRepository.findByCarne(carne);
 
         if (estudianteOptional.isEmpty()) {
-            return ResponseEntity
-                    .badRequest()
+            return ResponseEntity.badRequest()
                     .body("Estudiante no encontrado");
         }
 
-        // Buscar curso
         Optional<Curso> cursoOptional =
                 cursoRepository.findById(
                         solicitud.getCodigoCurso()
                 );
 
         if (cursoOptional.isEmpty()) {
-            return ResponseEntity
-                    .badRequest()
+            return ResponseEntity.badRequest()
                     .body("Curso no encontrado");
         }
 
         Curso curso = cursoOptional.get();
 
-        // Buscar sección dentro del curso
         Seccion seccionEncontrada = curso
                 .getSecciones()
                 .stream()
@@ -88,20 +95,13 @@ public class SeguimientoRestController {
                 .orElse(null);
 
         if (seccionEncontrada == null) {
-            return ResponseEntity
-                    .badRequest()
+            return ResponseEntity.badRequest()
                     .body("Sección no encontrada");
         }
 
-        Long idSeccion =
-                seccionEncontrada.getIdSeccion();
+        Long idSeccion = seccionEncontrada.getIdSeccion();
 
-        /*
-         * Buscar todos los seguimientos activos.
-         *
-         * Se usa List para que una base antigua con
-         * duplicados no provoque NonUniqueResultException.
-         */
+        // Buscar seguimientos activos, tolerando duplicados.
         List<Seguimiento> seguimientosActivos =
                 seguimientoRepository
                         .findByEstudianteCarneAndSeccionIdSeccionAndActivoTrue(
@@ -109,18 +109,10 @@ public class SeguimientoRestController {
                                 idSeccion
                         );
 
-        /*
-         * Si existe uno activo, no crear otro.
-         *
-         * Si por datos históricos existen varios activos,
-         * conservamos el más reciente y desactivamos
-         * los demás.
-         */
         if (!seguimientosActivos.isEmpty()) {
 
             Seguimiento seguimientoPrincipal =
-                    seguimientosActivos
-                            .stream()
+                    seguimientosActivos.stream()
                             .max((a, b) ->
                                     Integer.compare(
                                             a.getIdSeguimiento(),
@@ -129,31 +121,21 @@ public class SeguimientoRestController {
                             )
                             .orElse(seguimientosActivos.get(0));
 
-            for (Seguimiento seguimiento :
-                    seguimientosActivos) {
+            // Conservar el más reciente y desactivar duplicados.
+            for (Seguimiento seguimiento : seguimientosActivos) {
 
                 if (seguimiento.getIdSeguimiento()
                         != seguimientoPrincipal.getIdSeguimiento()) {
 
                     seguimiento.desactivar();
-
-                    seguimientoRepository.save(
-                            seguimiento
-                    );
+                    seguimientoRepository.save(seguimiento);
                 }
             }
 
-            return ResponseEntity.ok(
-                    seguimientoPrincipal
-            );
+            return ResponseEntity.ok(seguimientoPrincipal);
         }
 
-        /*
-         * No existe ningún seguimiento activo.
-         *
-         * Buscar seguimientos históricos ordenados
-         * desde el más reciente hasta el más antiguo.
-         */
+        // Buscar seguimientos históricos.
         List<Seguimiento> seguimientosAnteriores =
                 seguimientoRepository
                         .findByEstudianteCarneAndSeccionIdSeccionOrderByIdSeguimientoDesc(
@@ -161,19 +143,12 @@ public class SeguimientoRestController {
                                 idSeccion
                         );
 
-        /*
-         * Si anteriormente ya se siguió esta sección,
-         * reactivar el registro más reciente.
-         */
         if (!seguimientosAnteriores.isEmpty()) {
 
             Seguimiento seguimientoExistente =
                     seguimientosAnteriores.get(0);
 
-            /*
-             * Asegurar que cualquier otro registro histórico
-             * permanezca inactivo.
-             */
+            // Mantener inactivos los registros históricos restantes.
             for (int i = 1;
                     i < seguimientosAnteriores.size();
                     i++) {
@@ -183,10 +158,7 @@ public class SeguimientoRestController {
 
                 if (seguimientoAnterior.isActivo()) {
                     seguimientoAnterior.desactivar();
-
-                    seguimientoRepository.save(
-                            seguimientoAnterior
-                    );
+                    seguimientoRepository.save(seguimientoAnterior);
                 }
             }
 
@@ -197,15 +169,10 @@ public class SeguimientoRestController {
                             seguimientoExistente
                     );
 
-            return ResponseEntity.ok(
-                    seguimientoReactivado
-            );
+            return ResponseEntity.ok(seguimientoReactivado);
         }
 
-        /*
-         * Si nunca existió un seguimiento para esta
-         * estudiante y sección, crear uno nuevo.
-         */
+        // Crear seguimiento nuevo.
         Seguimiento nuevoSeguimiento =
                 new Seguimiento(
                         0,
@@ -218,9 +185,7 @@ public class SeguimientoRestController {
                         nuevoSeguimiento
                 );
 
-        return ResponseEntity.ok(
-                seguimientoGuardado
-        );
+        return ResponseEntity.ok(seguimientoGuardado);
     }
 
     // RF-05: DESACTIVAR SEGUIMIENTO
@@ -228,33 +193,39 @@ public class SeguimientoRestController {
     public ResponseEntity<?> desactivarSeguimiento(
             @RequestBody SolicitudSeguimiento solicitud) {
 
+        if (solicitud == null) {
+            return ResponseEntity.badRequest()
+                    .body("Solicitud obligatoria");
+        }
+
         String carne = String.valueOf(
                 solicitud.getCarnetEstudiante()
         );
 
-        // Buscar estudiante
+        // RF-01: Verificar identidad antes de modificar datos.
+        if (!autorizacionEstudianteService.puedeAccederACarne(carne)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No autorizado para modificar seguimientos de este estudiante");
+        }
+
         Optional<Estudiante> estudianteOptional =
                 estudianteRepository.findByCarne(carne);
 
         if (estudianteOptional.isEmpty()) {
-            return ResponseEntity
-                    .badRequest()
+            return ResponseEntity.badRequest()
                     .body("Estudiante no encontrado");
         }
 
-        // Buscar curso
         Optional<Curso> cursoOptional =
                 cursoRepository.findById(
                         solicitud.getCodigoCurso()
                 );
 
         if (cursoOptional.isEmpty()) {
-            return ResponseEntity
-                    .badRequest()
+            return ResponseEntity.badRequest()
                     .body("Curso no encontrado");
         }
 
-        // Buscar sección dentro del curso
         Seccion seccionEncontrada =
                 cursoOptional.get()
                         .getSecciones()
@@ -267,17 +238,11 @@ public class SeguimientoRestController {
                         .orElse(null);
 
         if (seccionEncontrada == null) {
-            return ResponseEntity
-                    .badRequest()
+            return ResponseEntity.badRequest()
                     .body("Sección no encontrada");
         }
 
-        /*
-         * Buscar todos los seguimientos activos.
-         *
-         * Normalmente existirá uno solo, pero List
-         * permite tolerar datos antiguos duplicados.
-         */
+        // Buscar todos los seguimientos activos.
         List<Seguimiento> seguimientosActivos =
                 seguimientoRepository
                         .findByEstudianteCarneAndSeccionIdSeccionAndActivoTrue(
@@ -286,18 +251,12 @@ public class SeguimientoRestController {
                         );
 
         if (seguimientosActivos.isEmpty()) {
-            return ResponseEntity
-                    .notFound()
-                    .build();
+            return ResponseEntity.notFound().build();
         }
 
-        /*
-         * Tomamos como principal el seguimiento
-         * activo más reciente.
-         */
+        // Seleccionar el seguimiento activo más reciente.
         Seguimiento seguimientoPrincipal =
-                seguimientosActivos
-                        .stream()
+                seguimientosActivos.stream()
                         .max((a, b) ->
                                 Integer.compare(
                                         a.getIdSeguimiento(),
@@ -306,50 +265,42 @@ public class SeguimientoRestController {
                         )
                         .orElse(seguimientosActivos.get(0));
 
-        /*
-         * Desactivar todos los seguimientos activos
-         * encontrados.
-         *
-         * Esto también limpia lógicamente una base
-         * antigua que tenga duplicados activos.
-         */
-        for (Seguimiento seguimiento :
-                seguimientosActivos) {
-
+        // Desactivar todos los registros activos duplicados.
+        for (Seguimiento seguimiento : seguimientosActivos) {
             seguimiento.desactivar();
+            seguimientoRepository.save(seguimiento);
+        }
 
-            seguimientoRepository.save(
-                    seguimiento
-            );
+        return ResponseEntity.ok(seguimientoPrincipal);
+    }
+
+    // RF-06: CONSULTA GLOBAL DE SEGUIMIENTOS
+    // Temporalmente restringida a administradores.
+    @GetMapping
+    public ResponseEntity<?> obtenerTodosLosSeguimientosActivos() {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Consulta global no disponible para estudiantes");
+    }
+
+    // RF-06: CONSULTAR SEGUIMIENTOS PROPIOS
+    @GetMapping("/estudiante/{carne}")
+    public ResponseEntity<?> obtenerSeguimientosPorEstudiante(
+            @PathVariable String carne) {
+
+        // RF-01: Impedir consultar seguimientos ajenos.
+        if (!autorizacionEstudianteService.puedeAccederACarne(carne)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No autorizado para consultar seguimientos de este estudiante");
         }
 
         return ResponseEntity.ok(
-                seguimientoPrincipal
+                seguimientoRepository
+                        .findByEstudianteCarneAndActivoTrue(carne)
         );
     }
 
-    // RF-06: OBTENER TODOS LOS SEGUIMIENTOS ACTIVOS
-    @GetMapping
-    public List<Seguimiento>
-            obtenerTodosLosSeguimientosActivos() {
-
-        return seguimientoRepository
-                .findByActivoTrue();
-    }
-
-    // RF-06: OBTENER SEGUIMIENTOS ACTIVOS DE UN ESTUDIANTE
-    @GetMapping("/estudiante/{carne}")
-    public List<Seguimiento>
-            obtenerSeguimientosPorEstudiante(
-                    @PathVariable String carne) {
-
-        return seguimientoRepository
-                .findByEstudianteCarneAndActivoTrue(
-                        carne
-                );
-    }
-
-    // DTO PARA RECIBIR EL JSON DEL FRONTEND
+    // DTO PARA RECIBIR JSON DEL FRONTEND
     public static class SolicitudSeguimiento {
 
         private int carnetEstudiante;
@@ -363,33 +314,24 @@ public class SeguimientoRestController {
             return carnetEstudiante;
         }
 
-        public void setCarnetEstudiante(
-                int carnetEstudiante) {
-
-            this.carnetEstudiante =
-                    carnetEstudiante;
+        public void setCarnetEstudiante(int carnetEstudiante) {
+            this.carnetEstudiante = carnetEstudiante;
         }
 
         public String getCodigoCurso() {
             return codigoCurso;
         }
 
-        public void setCodigoCurso(
-                String codigoCurso) {
-
-            this.codigoCurso =
-                    codigoCurso;
+        public void setCodigoCurso(String codigoCurso) {
+            this.codigoCurso = codigoCurso;
         }
 
         public int getSeccion() {
             return seccion;
         }
 
-        public void setSeccion(
-                int seccion) {
-
-            this.seccion =
-                    seccion;
+        public void setSeccion(int seccion) {
+            this.seccion = seccion;
         }
     }
 }

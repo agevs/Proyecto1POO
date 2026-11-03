@@ -1,5 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    // RF-01 + RF-12: verificar la sesion y aplicar permisos visuales.
+    async function verificarSesionDashboard() {
+        const API = "http://localhost:8080/api/auth";
+
+        try {
+            const respuesta = await fetch(`${API}/me`, {
+                method: "GET",
+                credentials: "include"
+            });
+
+            if (!respuesta.ok) {
+                window.ControlRolesVista?.aplicarVistaRol(null);
+                window.location.replace("login.html");
+                return;
+            }
+
+            const usuario = await respuesta.json();
+
+            // El rol proviene de la sesion validada por Spring Security.
+            const rol = usuario.rol;
+
+            window.ControlRolesVista?.aplicarVistaRol(rol);
+
+            console.log("Sesion verificada correctamente.");
+
+        } catch (error) {
+            console.error("No se pudo verificar la sesion:", error);
+            window.ControlRolesVista?.aplicarVistaRol(null);
+            window.location.replace("login.html");
+        }
+    }
+
+    verificarSesionDashboard();
+
+
     // ELEMENTOS DE LA INTERFAZ
     const linkAsignaciones =
         document.getElementById("link-asignaciones");
@@ -99,10 +134,25 @@ async function cargarCursos() {
 
 
         // OBTENER SEGUIMIENTOS ACTIVOS DEL ESTUDIANTE
-        const respuestaSeguimientos =
-            await fetch(
-                "http://localhost:8080/api/seguimientos/estudiante/26594"
-            );
+        const sesionRespuesta = await fetch(
+            "http://localhost:8080/api/auth/me",
+            { credentials: "include" }
+        );
+
+        if (!sesionRespuesta.ok) {
+            throw new Error("No hay sesion activa.");
+        }
+
+        const usuario = await sesionRespuesta.json();
+
+        if (usuario.rol !== "ESTUDIANTE" || !usuario.carne) {
+            throw new Error("Estudiante no autorizado.");
+        }
+
+        const respuestaSeguimientos = await fetch(
+            `http://localhost:8080/api/seguimientos/estudiante/${encodeURIComponent(usuario.carne)}`,
+            { credentials: "include" }
+        );
 
         let seguimientos = [];
 
@@ -273,6 +323,8 @@ function mostrarCursos(
             const estaSiguiendo = Boolean(
                 seguimientoActual
             );
+			fila.innerHTML = `<td>${curso.codigoCurso}</td><td>${curso.nombreCurso}<br><small>${seccion.horario}</small></td><td>Sección ${seccion.numeroSeccion}</td><td>${escaparTexto(nombreDocente)}</td><td><span class="badge-status ${claseEstado}">${seccion.estado}</span></td><td><button type="button" class="btn-ver-ficha" data-codigo="${curso.codigoCurso}" data-seccion="${seccion.numeroSeccion}">Ver Ficha</button><button type="button" class="btn-uvg btn-seguir" data-codigo="${curso.codigoCurso}" data-seccion="${seccion.numeroSeccion}" data-siguiendo="${estaSiguiendo}">${estaSiguiendo ? "🔔 Siguiendo" : "🔔 Seguir"}</button></td>`;
+
 
 
             fila.innerHTML = `
@@ -322,6 +374,81 @@ function mostrarCursos(
     });
 
 
+
+    // RF-02: MOSTRAR FICHA DEL CURSO
+    const botonesFicha = tabla.querySelectorAll(".btn-ver-ficha");
+
+    botonesFicha.forEach(boton => {
+        boton.addEventListener("click", () => {
+            const codigo = boton.dataset.codigo;
+            const numero = boton.dataset.seccion;
+
+            const curso = cursos.find(
+                c => String(c.codigoCurso) === codigo
+            );
+
+            const seccion = curso?.secciones?.find(
+                s => String(s.numeroSeccion) === numero
+            );
+
+            if (!curso || !seccion) {
+                alert("No se encontro la ficha del curso.");
+                return;
+            }
+
+            const docente = seccion.docente?.nombre || "STAFF";
+
+
+            const anterior = document.getElementById("ficha-curso-modal");
+            if (anterior) anterior.remove();
+
+            const fondo = document.createElement("div");
+            fondo.id = "ficha-curso-modal";
+            fondo.style.cssText = "position:fixed;inset:0;background:#0009;display:flex;align-items:center;justify-content:center;z-index:99999;padding:20px;";
+
+            const tarjeta = document.createElement("div");
+            tarjeta.style.cssText = "background:white;color:#293b4d;border-radius:12px;padding:28px;width:100%;max-width:520px;max-height:85vh;overflow:auto;box-shadow:0 10px 35px #0003;";
+
+            const titulo = document.createElement("h2");
+            titulo.textContent = "Ficha del curso";
+            titulo.style.marginTop = "0";
+            tarjeta.appendChild(titulo);
+
+            const campos = [
+                ["Codigo", curso.codigoCurso],
+                ["Curso", curso.nombreCurso],
+                ["Creditos", curso.creditos ?? "No disponible"],
+                ["Seccion", seccion.numeroSeccion],
+                ["Horario", seccion.horario],
+                ["Docente", docente],
+                ["Cupos disponibles", seccion.cuposDisponibles],
+                ["Estado", seccion.estado]
+            ];
+
+            campos.forEach(([etiqueta, valor]) => {
+                const linea = document.createElement("p");
+                const nombre = document.createElement("strong");
+                nombre.textContent = etiqueta + ": ";
+                linea.appendChild(nombre);
+                linea.appendChild(document.createTextNode(String(valor ?? "No disponible")));
+                tarjeta.appendChild(linea);
+            });
+
+            const cerrar = document.createElement("button");
+            cerrar.textContent = "Cerrar";
+            cerrar.style.cssText = "background:#198754;color:white;border:0;border-radius:6px;padding:12px 28px;cursor:pointer;float:right;";
+            cerrar.onclick = () => fondo.remove();
+            tarjeta.appendChild(cerrar);
+
+            fondo.addEventListener("click", evento => {
+                if (evento.target === fondo) fondo.remove();
+            });
+
+            fondo.appendChild(tarjeta);
+            document.body.appendChild(fondo);
+        });
+    });
+
     // CONFIGURAR BOTONES SEGUIR
     const botonesSeguir =
         tabla.querySelectorAll(
@@ -368,157 +495,90 @@ function mostrarCursos(
 // RF-04 / RF-05:
 // SEGUIR O DEJAR DE SEGUIR UNA SECCIÓN
 
-async function alternarSeguimiento(
-    codigoCurso,
-    numeroSeccion,
-    botonElemento,
-    estaSiguiendo
-) {
 
-    // Obtener el carné del estudiante desde la sesión.
-    // Se mantiene 26594 como valor por defecto para las pruebas actuales.
-    const idEstudiante =
-        localStorage.getItem("carnetEstudiante") ||
-        localStorage.getItem("idEstudiante") ||
-        26594;
+async function alternarSeguimiento(
+    codigoCurso, numeroSeccion, botonElemento, estaSiguiendo
+) {
+    const API = "http://localhost:8080/api";
+    botonElemento.disabled = true;
 
     try {
+        const sesionRespuesta = await fetch(`${API}/auth/me`, {
+            credentials: "include"
+        });
 
-        // EVITAR DOBLE CLIC
-        botonElemento.disabled = true;
+        if (!sesionRespuesta.ok) {
+            throw new Error("Sesion no valida. Inicia sesion nuevamente.");
+        }
 
+        const usuario = await sesionRespuesta.json();
 
-        const respuesta =
-            await fetch(
-                estaSiguiendo
-                    ? "http://localhost:8080/api/seguimientos/desactivar"
-                    : "http://localhost:8080/api/seguimientos",
-                {
-                    method:
-                        estaSiguiendo
-                            ? "PATCH"
-                            : "POST",
+        if (usuario.rol !== "ESTUDIANTE" || !usuario.carne) {
+            throw new Error("No se pudo verificar el estudiante.");
+        }
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+        const csrfRespuesta = await fetch(`${API}/auth/csrf`, {
+            credentials: "include"
+        });
 
-                    body: JSON.stringify({
+        if (!csrfRespuesta.ok) {
+            throw new Error("No se pudo obtener el token CSRF.");
+        }
 
-                        carnetEstudiante:
-                            idEstudiante,
+        const csrf = await csrfRespuesta.json();
 
-                        codigoCurso:
-                            codigoCurso,
+        if (!csrf.token || !csrf.headerName) {
+            throw new Error("Token CSRF invalido.");
+        }
 
-                        seccion:
-                            parseInt(
-                                numeroSeccion,
-                                10
-                            )
-                    })
-                }
-            );
-
+        const respuesta = await fetch(
+            estaSiguiendo
+                ? `${API}/seguimientos/desactivar`
+                : `${API}/seguimientos`,
+            {
+                method: estaSiguiendo ? "PATCH" : "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    [csrf.headerName]: csrf.token
+                },
+                body: JSON.stringify({
+                    carnetEstudiante: usuario.carne,
+                    codigoCurso: codigoCurso,
+                    seccion: Number(numeroSeccion)
+                })
+            }
+        );
 
         if (!respuesta.ok) {
-
-            const mensajeError =
-                await respuesta.text();
-
-            // CORRECCIÓN:
-            // Los paréntesis aseguran que el operador ternario
-            // se evalúe correctamente.
-            throw new Error(
-                mensajeError ||
-                (
-                    estaSiguiendo
-                        ? "No se pudo dejar de seguir la sección."
-                        : "No se pudo registrar el seguimiento."
-                )
-            );
+            const mensaje = await respuesta.text();
+            throw new Error(`HTTP ${respuesta.status}: ${mensaje}`);
         }
 
+        const resultado = await respuesta.json();
+        console.log("Seguimiento actualizado:", resultado);
 
-        const resultado =
-            await respuesta.json();
+        const nuevoEstado = !estaSiguiendo;
+        botonElemento.dataset.siguiendo = String(nuevoEstado);
+        botonElemento.textContent = nuevoEstado
+            ? "🔔 Siguiendo"
+            : "🔔 Seguir";
 
-
-        console.log(
-            "Seguimiento actualizado:",
-            resultado
-        );
-
-
-        // ACTUALIZAR EL BOTÓN SIN RECARGAR LA PÁGINA
-        const nuevoEstado =
-            !estaSiguiendo;
-
-        botonElemento.dataset.siguiendo =
-            String(nuevoEstado);
-
-        botonElemento.textContent =
-            nuevoEstado
-                ? "🔔 Siguiendo"
-                : "🔔 Seguir";
-
-        botonElemento.disabled =
-            false;
-
-
-        alert(
-            nuevoEstado
-                ? `Ahora sigues la sección ${numeroSeccion} del curso ${codigoCurso}.`
-                : `Has dejado de seguir la sección ${numeroSeccion} del curso ${codigoCurso}.`
-        );
-
+        alert(nuevoEstado
+            ? "Seguimiento registrado correctamente."
+            : "Seguimiento desactivado correctamente.");
 
     } catch (error) {
-
-        console.error(
-            "Error al actualizar seguimiento:",
-            error
-        );
-
-
-        // VOLVER A HABILITAR EL BOTÓN
-        botonElemento.disabled =
-            false;
-
-
-        // CONSERVAR EL ESTADO VISUAL ANTERIOR
-        botonElemento.dataset.siguiendo =
-            String(estaSiguiendo);
-
-        botonElemento.textContent =
-            estaSiguiendo
-                ? "🔔 Siguiendo"
-                : "🔔 Seguir";
-
-
-        let mensajeAlerta =
-            estaSiguiendo
-                ? "Ocurrió un error al intentar dejar de seguir la sección."
-                : "Ocurrió un error al intentar seguir la sección.";
-
-
-        if (
-            error &&
-            error.message
-        ) {
-
-            mensajeAlerta =
-                error.message;
-        }
-
-
-        alert(
-            mensajeAlerta
-        );
+        console.error("Error al actualizar seguimiento:", error);
+        botonElemento.dataset.siguiendo = String(estaSiguiendo);
+        botonElemento.textContent = estaSiguiendo
+            ? "🔔 Siguiendo"
+            : "🔔 Seguir";
+        alert(error.message);
+    } finally {
+        botonElemento.disabled = false;
     }
 }
-
 
 // RF-07:
 // PESTAÑAS CATÁLOGO GENERAL / MIS ALERTAS
@@ -640,8 +700,12 @@ async function cargarNotificaciones() {
 
         const respuesta =
             await fetch(
-                "http://localhost:8080/api/notificaciones"
-            );
+    "http://localhost:8080/api/notificaciones",
+    {
+        method: "GET",
+        credentials: "include"
+    }
+);
 
 
         if (!respuesta.ok) {
@@ -974,8 +1038,12 @@ async function marcarNotificacionComoLeida(
         // VOLVER A CONSULTAR LAS NOTIFICACIONES
         const respuestaNotificaciones =
             await fetch(
-                "http://localhost:8080/api/notificaciones"
-            );
+    "http://localhost:8080/api/notificaciones",
+    {
+        method: "GET",
+        credentials: "include"
+    }
+);
 
 
         if (!respuestaNotificaciones.ok) {
@@ -1065,4 +1133,11 @@ async function marcarNotificacionComoLeida(
 
         throw error;
     }
+}
+
+// RF-10: mostrar nombres ingresados como texto seguro en el catálogo.
+function escaparTexto(valor) {
+    const elemento = document.createElement("span");
+    elemento.textContent = valor ?? "";
+    return elemento.innerHTML;
 }
