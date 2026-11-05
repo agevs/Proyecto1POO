@@ -16,6 +16,8 @@ public class Curso {
 
     private String nombreCurso;
     private int creditos;
+    private Integer anio;
+    private Integer semestre;
 
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
     private List<Seccion> secciones;
@@ -72,6 +74,22 @@ public class Curso {
 
     public void setSecciones(List<Seccion> secciones) {
         this.secciones = secciones;
+    }
+
+    public Integer getAnio() {
+        return anio;
+    }
+
+    public void setAnio(Integer anio) {
+        this.anio = anio;
+    }
+
+    public Integer getSemestre() {
+        return semestre;
+    }
+
+    public void setSemestre(Integer semestre) {
+        this.semestre = semestre;
     }
 
     @Override
