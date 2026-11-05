@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.uvg.proyectoasignaciones.model.Estudiante;
 import com.uvg.proyectoasignaciones.model.Notificacion;
 import com.uvg.proyectoasignaciones.repository.NotificacionRepository;
+import com.uvg.proyectoasignaciones.service.correo.ServicioCorreo;
 
 @ExtendWith(MockitoExtension.class)
 class NotificacionControllerTests {
@@ -26,12 +28,15 @@ class NotificacionControllerTests {
     @Mock
     private NotificacionRepository repository;
 
+    @Mock
+    private ServicioCorreo servicioCorreo;
+
     private NotificacionController controller;
     private Estudiante estudiante;
 
     @BeforeEach
     void prepararPrueba() {
-        controller = new NotificacionController(repository);
+        controller = new NotificacionController(repository, servicioCorreo);
         estudiante = new Estudiante(1, "Estudiante", "estudiante@uvg.edu.gt", "1234", "26594");
     }
 
@@ -77,5 +82,62 @@ class NotificacionControllerTests {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> controller.crearNotificacion(estudiante, null, "   "));
+    }
+
+    @Test
+    void guardaAlertaAntesDeSolicitarCorreo() {
+        Notificacion guardada = new Notificacion(
+                "26594", "Cambio de estado", "2026-11-04T18:00", null
+        );
+
+        when(repository.save(
+                org.mockito.ArgumentMatchers.any(Notificacion.class)
+        )).thenReturn(guardada);
+
+        Notificacion resultado = controller.crearNotificacion(
+                estudiante, null, "Cambio de estado"
+        );
+
+        var orden = inOrder(repository, servicioCorreo);
+
+        orden.verify(repository).save(
+                org.mockito.ArgumentMatchers.any(Notificacion.class)
+        );
+
+        orden.verify(servicioCorreo).enviarNotificacion(
+                "estudiante@uvg.edu.gt",
+                "Notificacion academica - Proyecto POO UVG",
+                "Cambio de estado"
+        );
+
+        assertEquals(guardada, resultado);
+    }
+
+    @Test
+    void conservaAlertaCuandoFallaCorreo() {
+        Notificacion guardada = new Notificacion(
+                "26594", "Cambio de estado", "2026-11-04T18:00", null
+        );
+
+        when(repository.save(
+                org.mockito.ArgumentMatchers.any(Notificacion.class)
+        )).thenReturn(guardada);
+
+        org.mockito.Mockito.doThrow(
+                new IllegalStateException("Servicio no disponible")
+        ).when(servicioCorreo).enviarNotificacion(
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString()
+        );
+
+        Notificacion resultado = controller.crearNotificacion(
+                estudiante, null, "Cambio de estado"
+        );
+
+        assertEquals(guardada, resultado);
+        verify(repository).save(
+                org.mockito.ArgumentMatchers.any(Notificacion.class)
+        );
     }
 }
