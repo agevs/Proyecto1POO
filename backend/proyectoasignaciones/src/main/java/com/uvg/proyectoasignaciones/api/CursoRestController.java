@@ -52,15 +52,16 @@ public class CursoRestController {
         
         List<Curso> cursosFiltrados = todosLosCursos.stream().filter(curso -> {
             boolean cumpleAnio = (anio == null) || (curso.getAnio() == anio);
-            
-            // CORREGIDO: Usamos String.valueOf() por si curso.getSemestre() es un número (Integer/int)
             boolean cumpleSemestre = (semestre == null) || (curso.getSemestre() != null && String.valueOf(curso.getSemestre()).equalsIgnoreCase(semestre));
-            
             boolean cumpleEstado = (estado == null) || curso.getSecciones().stream()
                     .anyMatch(seccion -> seccion.getEstado() != null && seccion.getEstado().equalsIgnoreCase(estado));
             
             return cumpleAnio && cumpleSemestre && cumpleEstado;
         }).toList();
+
+       
+        System.out.println("[FILTROS] Aplicados -> Año: " + anio + ", Semestre: " + semestre + ", Estado: " + estado 
+                .concat(" | Cursos encontrados: " + cursosFiltrados.size()));
 
         return ResponseEntity.ok(cursosFiltrados);
     }
