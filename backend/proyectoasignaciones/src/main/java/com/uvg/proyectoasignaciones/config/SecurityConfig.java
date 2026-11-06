@@ -92,7 +92,12 @@ public class SecurityConfig {
                             "/api/auth/logout"
                     ).authenticated()
 
-                    .anyRequest().authenticated()
+                    // RF-14: evaluacion de adelantos para estudiantes.
+                .requestMatchers(
+                        "/api/adelantos/**"
+                ).hasRole("ESTUDIANTE")
+
+                .anyRequest().authenticated()
             )
 
             .exceptionHandling(ex -> ex
