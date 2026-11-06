@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uvg.proyectoasignaciones.model.Curso;
@@ -42,6 +43,30 @@ public class CursoRestController {
         return cursoRepository.findAll();
     }
 
+
+    @GetMapping("/filtrar")
+    public ResponseEntity<List<Curso>> filtrarCursos(
+            @RequestParam(required = false) Integer anio,
+            @RequestParam(required = false) String semestre,
+            @RequestParam(required = false) String estado) {
+
+        List<Curso> todosLosCursos = cursoRepository.findAll();
+
+        List<Curso> cursosFiltrados = todosLosCursos.stream().filter(curso -> {
+            boolean cumpleAnio = (anio == null) || (curso.getAnio() == anio);
+            boolean cumpleSemestre = (semestre == null) || (curso.getSemestre() != null && String.valueOf(curso.getSemestre()).equalsIgnoreCase(semestre));
+            boolean cumpleEstado = (estado == null) || curso.getSecciones().stream()
+                    .anyMatch(seccion -> seccion.getEstado() != null && seccion.getEstado().equalsIgnoreCase(estado));
+
+            return cumpleAnio && cumpleSemestre && cumpleEstado;
+        }).toList();
+
+
+        System.out.println("[FILTROS] Aplicados -> Año: " + anio + ", Semestre: " + semestre + ", Estado: " + estado
+                .concat(" | Cursos encontrados: " + cursosFiltrados.size()));
+
+        return ResponseEntity.ok(cursosFiltrados);
+    }
 
     @PostMapping
     public ResponseEntity<Curso> crearCurso(@RequestBody Curso nuevoCurso) {
