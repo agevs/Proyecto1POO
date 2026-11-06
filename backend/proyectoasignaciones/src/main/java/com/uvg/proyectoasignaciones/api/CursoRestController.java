@@ -62,8 +62,12 @@ public class CursoRestController {
         }).toList();
 
 
-        System.out.println("[FILTROS] Aplicados -> Año: " + anio + ", Semestre: " + semestre + ", Estado: " + estado
-                .concat(" | Cursos encontrados: " + cursosFiltrados.size()));
+        System.out.println(
+                "[FILTROS] Aplicados -> Anio: " + anio
+                + ", Semestre: " + semestre
+                + ", Estado: " + estado
+                + " | Cursos encontrados: " + cursosFiltrados.size()
+        );
 
         return ResponseEntity.ok(cursosFiltrados);
     }
