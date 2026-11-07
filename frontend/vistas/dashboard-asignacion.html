@@ -183,7 +183,18 @@
 
                     <!-- TABLA DE CURSOS -->
 
-                    <table class="table-custom">
+
+<div style="margin: 12px 0; display: flex; gap: 10px; align-items: center;">
+    <label for="filtro-estado-cursos">Estado:</label>
+    <select id="filtro-estado-cursos"
+            style="padding: 9px; border: 1px solid #ccc; border-radius: 5px;">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Confirmado">Confirmado</option>
+        <option value="Docente en confirmación">Docente en confirmación</option>
+    </select>
+</div>
+<table class="table-custom">
 
                         <colgroup>
                             <col class="col-codigo">

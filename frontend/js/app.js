@@ -198,47 +198,53 @@ async function cargarCursos() {
 }
 
 
-function configurarBuscador(
-    cursos,
-    seguimientos
-) {
+function configurarBuscador(cursos, seguimientos) {
+    const buscador = document.getElementById("buscador-cursos");
+    const selector = document.getElementById("filtro-estado-cursos");
 
-    const buscador =
-        document.getElementById(
-            "buscador-cursos"
-        );
-
-    if (
-        !buscador ||
-        buscador.dataset.configurado === "true"
-    ) {
+    if (!buscador || !selector) {
+        console.warn("No se encontraron los controles del catalogo.");
         return;
     }
 
-    buscador.dataset.configurado = "true";
+    async function aplicarFiltros() {
+        const termino = normalizarTexto(buscador.value);
+        const estado = selector.value;
 
-    buscador.addEventListener(
-        "input",
-        (evento) => {
+        try {
+            const url = estado
+                ? "http://localhost:8080/api/cursos/filtrar?estado="
+                    + encodeURIComponent(estado)
+                : "http://localhost:8080/api/cursos";
 
-            const termino = normalizarTexto(
-                evento.target.value
+            const respuesta = await fetch(url);
+
+            if (!respuesta.ok) {
+                throw new Error("Error HTTP " + respuesta.status);
+            }
+
+            const cursosPorEstado = await respuesta.json();
+
+            const resultado = cursosPorEstado.filter(curso =>
+                normalizarTexto(
+                    `${curso.codigoCurso} ${curso.nombreCurso}`
+                ).includes(termino)
             );
 
-            const cursosFiltrados = !termino
-                ? cursos
-                : cursos.filter(
-                    curso => normalizarTexto(
-                        `${curso.codigoCurso} ${curso.nombreCurso}`
-                    ).includes(termino)
-                );
+            mostrarCursos(resultado, seguimientos);
 
-            mostrarCursos(
-                cursosFiltrados,
-                seguimientos
-            );
+        } catch (error) {
+            console.error("Error al filtrar cursos:", error);
+            mostrarCursos(cursos.filter(curso =>
+                normalizarTexto(
+                    `${curso.codigoCurso} ${curso.nombreCurso}`
+                ).includes(termino)
+            ), seguimientos);
         }
-    );
+    }
+
+    buscador.addEventListener("input", aplicarFiltros);
+    selector.addEventListener("change", aplicarFiltros);
 }
 
 
