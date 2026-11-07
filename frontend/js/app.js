@@ -83,6 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     modalCatalogo.style.display =
                         "block";
 
+                    btnAbrirCatalogo.classList.add("activo");
+
                     modalCatalogo.scrollIntoView({
                         behavior: "smooth"
                     });
@@ -91,6 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     modalCatalogo.style.display =
                         "none";
+
+                    btnAbrirCatalogo.classList.remove("activo");
                 }
             }
         );

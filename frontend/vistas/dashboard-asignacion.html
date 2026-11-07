@@ -8,7 +8,7 @@
     <title>Asignación de Cursos - UVG</title>
 
     <!-- Estilos principales -->
-    <link rel="stylesheet" href="../css/styles.css?v=2">
+    <link rel="stylesheet" href="../css/styles.css?v=6">
 </head>
 
 <body>
@@ -36,42 +36,31 @@
                 border-color: rgba(255,255,255,0.2);
             ">
 
-            <ul style="
-                list-style: none;
-                padding: 0;
-                margin-top: 20px;
-            ">
-
-                <li style="
-                    padding: 10px 0;
-                    background: rgba(255,255,255,0.1);
-                    padding-left: 10px;
-                    border-radius: 4px;
-                ">
-                    Asignación de Cursos
-                </li>
-
-                <li style="padding: 10px;">
-                    <a href="pensum-academico.html" style="color: white; text-decoration: none; display: block;">
-                        Pensum académico
-                    </a>
-                </li>
-
-
-                <li style="margin-top: 12px;">
-                    <a href="adelanto-cursos.html"
-                       data-rol-permitido="ESTUDIANTE"
-                       style="display: block; padding: 12px;
-                              background: #198754; color: white;
-                              text-decoration: none;
-                              border-radius: 6px;
-                              font-weight: bold;">
-                        Adelanto de cursos
-                    </a>
-                </li>
-
-
-            </ul>
+            <ul class="menu-estudiante">
+    <li>
+        <button
+            id="btn-abrir-catalogo"
+            class="menu-enlace"
+            type="button"
+            data-rol-permitido="ESTUDIANTE"
+            hidden>
+            Asignación de Cursos
+        </button>
+    </li>
+    <li>
+        <a class="menu-enlace" href="pensum-academico.html">
+            Pensum académico
+        </a>
+    </li>
+    <li>
+        <a class="menu-enlace"
+           href="adelanto-cursos.html"
+           data-rol-permitido="ESTUDIANTE"
+           hidden>
+            Adelanto de cursos
+        </a>
+    </li>
+</ul>
             <button id="btn-cerrar-sesion" type="button" style="width: 100%;
                 margin-top: 24px;
                 padding: 12px;
@@ -107,9 +96,7 @@
                     Administrar docentes
                 </a>
 
-                <button class="btn-uvg" id="btn-abrir-catalogo" data-rol-permitido="ESTUDIANTE" hidden>
-                    ASIGNACIÓN DE CURSOS
-                </button>
+
 
             </div>
 
@@ -140,7 +127,7 @@
                 </p>
 
             </div>
-            <!-- 
+            <!--
                  CATÁLOGO GENERAL -->
 
             <div id="modal-catalogo-general" style="

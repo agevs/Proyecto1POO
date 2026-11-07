@@ -304,3 +304,91 @@ button:focus-visible {
     outline: 2px solid var(--uvg-dark-green);
     outline-offset: 3px;
 }
+/* Navegacion uniforme del estudiante */
+.menu-estudiante {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-estudiante li {
+    margin: 0 0 6px;
+    padding: 0;
+}
+
+.menu-estudiante .menu-enlace {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: white;
+    border: 0;
+    border-radius: 5px;
+    text-align: left;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.menu-estudiante .menu-enlace:hover,
+.menu-estudiante .menu-enlace:focus-visible {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.menu-estudiante .menu-enlace.activo {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.menu-estudiante .menu-enlace[hidden] {
+    display: none;
+}
+
+/* Correccion visual del menu estudiantil */
+#dashboard-view .menu-estudiante {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0;
+}
+
+#dashboard-view .menu-estudiante li {
+    margin: 0 0 8px;
+    padding: 0;
+}
+
+#dashboard-view .menu-estudiante .menu-enlace {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    margin: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #ffffff;
+    text-decoration: none;
+    text-align: left;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+#dashboard-view .menu-estudiante .menu-enlace.activo {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+#dashboard-view .menu-estudiante .menu-enlace:hover,
+#dashboard-view .menu-estudiante .menu-enlace:focus-visible {
+    background: #208454;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#dashboard-view .menu-estudiante .menu-enlace[hidden] {
+    display: none;
+}
