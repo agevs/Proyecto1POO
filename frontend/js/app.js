@@ -575,8 +575,8 @@ async function alternarSeguimiento(
             : "🔔 Seguir";
 
         alert(nuevoEstado
-            ? "Seguimiento registrado correctamente."
-            : "Seguimiento desactivado correctamente.");
+            ? `Ahora sigues el curso ${codigoCurso}, sección ${numeroSeccion}. Recibirás alertas cuando cambie su estado.`
+            : `Dejaste de seguir el curso ${codigoCurso}, sección ${numeroSeccion}.`);
 
     } catch (error) {
         console.error("Error al actualizar seguimiento:", error);
