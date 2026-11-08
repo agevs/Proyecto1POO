@@ -1028,13 +1028,35 @@ async function marcarNotificacionComoLeida(
     try {
 
         // MARCAR NOTIFICACIÓN COMO LEÍDA
-        const respuesta =
-            await fetch(
-                `http://localhost:8080/api/notificaciones/${idNotificacion}/leida`,
-                {
-                    method: "PATCH"
-                }
-            );
+
+const csrfRespuesta = await fetch(
+    "http://localhost:8080/api/auth/csrf",
+    {
+        credentials: "include"
+    }
+);
+
+if (!csrfRespuesta.ok) {
+    throw new Error("No se pudo obtener CSRF");
+}
+
+const csrf = await csrfRespuesta.json();
+
+if (!csrf.token || !csrf.headerName) {
+    throw new Error("Token CSRF invalido");
+}
+
+const respuesta = await fetch(
+    `http://localhost:8080/api/notificaciones/${idNotificacion}/leida`,
+    {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+            [csrf.headerName]: csrf.token
+        }
+    }
+);
+
 
 
         if (!respuesta.ok) {
