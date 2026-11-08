@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Adelanto de cursos - UVG</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        body { background: #f4f6f5; font-family: Arial, sans-serif; }
+        main { max-width: 850px; margin: 45px auto; padding: 20px; }
+        .panel { background: white; padding: 30px; border-radius: 10px;
+                 box-shadow: 0 3px 15px #00000012; }
+        h1 { color: #187b4c; }
+        label { display: block; margin-top: 18px; font-weight: bold; }
+        input, select { box-sizing: border-box; width: 100%; padding: 12px;
+                        margin-top: 7px; border: 1px solid #bbb;
+                        border-radius: 5px; }
+        button { margin-top: 22px; padding: 13px 20px; background: #198754;
+                 color: white; border: 0; border-radius: 5px;
+                 cursor: pointer; font-weight: bold; }
+        .resultado { margin-top: 25px; padding: 18px; border-radius: 6px; }
+        .aprobado { background: #d1fae5; color: #065f46; }
+        .rechazado { background: #fee2e2; color: #991b1b; }
+        .aviso { color: #555; font-size: 14px; }
+        a { color: #187b4c; }
+    </style>
+</head>
+<body>
+<main>
+    <a href="dashboard-asignacion.html">Volver a asignación de cursos</a>
+
+    <div class="panel">
+        <h1>Adelanto de cursos</h1>
+        <p>Evaluación de elegibilidad académica - RF-14</p>
+        <p class="aviso">
+            Simulación con datos ficticios. No constituye una
+            autorización académica ni realiza asignaciones.
+        </p>
+
+        <form id="form-adelanto">
+            <label for="promedio">Promedio académico</label>
+            <input id="promedio" type="number" min="0" max="100"
+                   step="0.01" value="90" required>
+
+            <label for="anio">Año actual del estudiante</label>
+            <select id="anio">
+                <option value="1">Primer año</option>
+                <option value="2" selected>Segundo año</option>
+                <option value="3">Tercer año</option>
+                <option value="4">Cuarto año</option>
+                <option value="5">Quinto año</option>
+            </select>
+
+            <label for="curso">Curso que desea adelantar</label>
+            <select id="curso">
+                <option value="CC3088">Bases de Datos 1 - Año 3</option>
+                <option value="CC3089">Bases de Datos 2 - Año 4</option>
+            </select>
+
+            <label>
+                <input id="aprobado" type="checkbox"
+                       style="width:auto; margin-right:8px;">
+                He aprobado el prerrequisito del curso seleccionado
+            </label>
+
+            <button type="submit">Evaluar adelanto</button>
+        </form>
+
+        <div id="resultado" role="status" aria-live="polite"></div>
+    </div>
+</main>
+
+<script src="../js/adelanto-cursos.js"></script>
+</body>
+</html>

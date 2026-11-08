@@ -8,13 +8,12 @@
     <title>Asignación de Cursos - UVG</title>
 
     <!-- Estilos principales -->
-    <link rel="stylesheet" href="../css/styles.css?v=2">
+    <link rel="stylesheet" href="../css/styles.css?v=6">
 </head>
 
 <body>
 
-    <div id="dashboard-view"
-         style="display: flex; min-height: 100vh;">
+    <div id="dashboard-view" style="display: flex; min-height: 100vh;">
 
         <!--BARRA LATERAL -->
 
@@ -37,22 +36,43 @@
                 border-color: rgba(255,255,255,0.2);
             ">
 
-            <ul style="
-                list-style: none;
-                padding: 0;
-                margin-top: 20px;
-            ">
-
-                <li style="
-                    padding: 10px 0;
-                    background: rgba(255,255,255,0.1);
-                    padding-left: 10px;
-                    border-radius: 4px;
+            <ul class="menu-estudiante">
+    <li>
+        <button
+            id="btn-abrir-catalogo"
+            class="menu-enlace"
+            type="button"
+            data-rol-permitido="ESTUDIANTE"
+            hidden>
+            Asignación de Cursos
+        </button>
+    </li>
+    <li>
+        <a class="menu-enlace" href="pensum-academico.html">
+            Pensum académico
+        </a>
+    </li>
+    <li>
+        <a class="menu-enlace"
+           href="adelanto-cursos.html"
+           data-rol-permitido="ESTUDIANTE"
+           hidden>
+            Adelanto de cursos
+        </a>
+    </li>
+</ul>
+            <button id="btn-cerrar-sesion" type="button" style="width: 100%;
+                margin-top: 24px;
+                padding: 12px;
+                background: transparent;
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
                 ">
-                    Asignación de Cursos
-                </li>
-
-            </ul>
+                Cerrar Sesión
+            </button>
         </div>
 
         <!-- CONTENIDO PRINCIPAL -->
@@ -72,14 +92,11 @@
             ">
 
                 <h2>Asignación de cursos</h2>
+                <a href="administracion-docentes.html" data-rol-permitido="ADMINISTRADOR" hidden>
+                    Administrar docentes
+                </a>
 
-                <button
-                    class="btn-uvg"
-                    id="btn-abrir-catalogo">
 
-                    ASIGNACIÓN DE CURSOS
-
-                </button>
 
             </div>
 
@@ -110,12 +127,10 @@
                 </p>
 
             </div>
-            <!-- 
+            <!--
                  CATÁLOGO GENERAL -->
 
-            <div
-                id="modal-catalogo-general"
-                style="
+            <div id="modal-catalogo-general" style="
                     display: none;
                     margin-top: 30px;
                     background: #fff;
@@ -123,8 +138,7 @@
                     padding: 20px;
                     border-radius: 6px;
                     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-                "
-            >
+                ">
 
                 <!-- Pestañas -->
 
@@ -155,68 +169,74 @@
 
                 <div id="panel-catalogo">
 
-                <div style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 15px;">
 
-                    <input
-                        type="text"
-                        id="buscador-cursos"
-                        placeholder="Buscar curso: [ Programación ]"
-                        style="
+                        <input type="text" id="buscador-cursos" placeholder="Buscar curso: [ Programación ]" style="
                             width: 100%;
                             padding: 8px;
                             border: 1px solid #ccc;
                             border-radius: 4px;
-                        "
-                    >
+                        ">
 
-                </div>
-
-
-                <!-- TABLA DE CURSOS -->
-
-                <table class="table-custom">
-
-                    <colgroup>
-                        <col class="col-codigo">
-                        <col class="col-curso">
-                        <col class="col-seccion">
-                        <col class="col-docente">
-                        <col class="col-estado">
-                        <col class="col-acciones">
-                    </colgroup>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>CÓDIGO</th>
-
-                            <th>
-                                CURSO (con horario)
-                            </th>
-
-                            <th>
-                                SECCIÓN
-                            </th>
-
-                            <th>
-                                CATEDRÁTICO
-                            </th>
-
-                            <th>
-                                ESTADO (Detallado)
-                            </th>
-
-                            <th>
-                                ACCIONES
-                            </th>
-
-                        </tr>
-
-                    </thead>
+                    </div>
 
 
-                    <!--
+                    <!-- TABLA DE CURSOS -->
+
+
+<div style="margin: 12px 0; display: flex; gap: 10px; align-items: center;">
+    <label for="filtro-estado-cursos">Estado:</label>
+    <select id="filtro-estado-cursos"
+            style="padding: 9px; border: 1px solid #ccc; border-radius: 5px;">
+        <option value="">Todos los estados</option>
+        <option value="Pendiente">Pendiente</option>
+        <option value="Confirmado">Confirmado</option>
+        <option value="Docente en confirmación">Docente en confirmación</option>
+    </select>
+</div>
+<table class="table-custom">
+
+                        <colgroup>
+                            <col class="col-codigo">
+                            <col class="col-curso">
+                            <col class="col-seccion">
+                            <col class="col-docente">
+                            <col class="col-estado">
+                            <col class="col-acciones">
+                        </colgroup>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>CÓDIGO</th>
+
+                                <th>
+                                    CURSO (con horario)
+                                </th>
+
+                                <th>
+                                    SECCIÓN
+                                </th>
+
+                                <th>
+                                    CATEDRÁTICO
+                                </th>
+
+                                <th>
+                                    ESTADO (Detallado)
+                                </th>
+
+                                <th>
+                                    ACCIONES
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <!--
                         IMPORTANTE:
 
                         Antes aquí estaban escritos manualmente
@@ -226,13 +246,13 @@
                         esta sección utilizando /api/cursos.
                     -->
 
-                    <tbody id="tabla-cursos-body">
+                        <tbody id="tabla-cursos-body">
 
-                        <!--Los cursos se cargarán desde Spring Boot -->
+                            <!--Los cursos se cargarán desde Spring Boot -->
 
-                    </tbody>
+                        </tbody>
 
-                </table>
+                    </table>
 
                 </div>
 
@@ -256,7 +276,9 @@
         http://localhost:8080/api/cursos
     -->
 
+    <script src="../js/control-roles.js"></script>
     <script src="../js/app.js?v=3"></script>
+    <script src="../js/logout.js"></script>
 
 </body>
 

@@ -33,3 +33,12 @@ build/
 .vscode/
 #base de datos SQLite local
 proyecto.db
+
+
+# Bases de datos locales SQLite
+*.db
+*.db-wal
+*.db-shm
+
+# Archivo temporal de dependencias Maven
+classpath.txt
