@@ -21,8 +21,23 @@ const ICONOS = {
     creditos: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
     comun: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
     ruta: '<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
-    pendiente: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
+    pendiente: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+    info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+    expandir: '<polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/>',
+    contraer: '<polyline points="7 11 12 6 17 11"/><polyline points="7 18 12 13 17 18"/>'
 };
+
+// Significado de cada icono (se muestra en la leyenda de la pantalla).
+const LEYENDA = [
+    ["curso", "Curso del pensum. Haz clic en la fila para ver su información."],
+    ["codigo", "Código oficial del curso."],
+    ["creditos", "Créditos del curso, o total de créditos del semestre."],
+    ["anio", "Año de la carrera en el que se lleva el curso."],
+    ["semestre", "Semestre del año (1 o 2)."],
+    ["comun", "Curso común: se lleva con cualquier ruta de matemática."],
+    ["ruta", "Curso propio de la Ruta 1 o la Ruta 2 de matemática."],
+    ["pendiente", "El código oficial todavía está por confirmar."]
+];
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -185,11 +200,89 @@ function mostrarCursos() {
         );
     }
 
+    actualizarResumen(visibles, anios.length);
     mostrarEstado(
         visibles.length === 0
             ? "No hay cursos registrados."
             : `${visibles.length} curso(s) del Pensum 2025 (${textoRuta(rutaElegida)}).`
     );
+}
+
+let resumenGeneral = null;
+
+function crearTarjetaResumen(icono, titulo) {
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "tarjeta-resumen";
+
+    const valor = document.createElement("strong");
+    tarjeta.append(
+        crearIcono(icono),
+        valor,
+        crearElemento("span", titulo)
+    );
+    return { tarjeta, valor };
+}
+
+function crearResumenGeneral() {
+    const cursos = crearTarjetaResumen("curso", "cursos");
+    const creditos = crearTarjetaResumen("creditos", "créditos en total");
+    const anios = crearTarjetaResumen("anio", "años de carrera");
+
+    const contenedorResumen = document.createElement("div");
+    contenedorResumen.className = "resumen-general";
+    contenedorResumen.append(cursos.tarjeta, creditos.tarjeta, anios.tarjeta);
+
+    resumenGeneral = {
+        contenedor: contenedorResumen,
+        cursos: cursos.valor,
+        creditos: creditos.valor,
+        anios: anios.valor
+    };
+    return contenedorResumen;
+}
+
+function actualizarResumen(visibles, anios) {
+    resumenGeneral.cursos.textContent = String(visibles.length);
+    resumenGeneral.creditos.textContent = String(
+        visibles.reduce((suma, c) => suma + (c.creditos ?? 0), 0)
+    );
+    resumenGeneral.anios.textContent = String(anios);
+}
+
+function crearLeyenda() {
+    const leyenda = document.createElement("details");
+    leyenda.className = "leyenda";
+
+    const titulo = document.createElement("summary");
+    titulo.append(
+        crearIcono("info"),
+        document.createTextNode("¿Qué significa cada icono?")
+    );
+
+    const lista = document.createElement("ul");
+    for (const [icono, significado] of LEYENDA) {
+        const item = document.createElement("li");
+        item.append(crearIcono(icono), crearElemento("span", significado));
+        lista.append(item);
+    }
+
+    leyenda.append(titulo, lista);
+    return leyenda;
+}
+
+function cambiarTodos(abrir) {
+    contenedor.querySelectorAll("details").forEach(detalle => {
+        detalle.open = abrir;
+    });
+}
+
+function crearBotonMasivo(icono, texto, abrir) {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "boton-masivo";
+    boton.append(crearIcono(icono), document.createTextNode(texto));
+    boton.addEventListener("click", () => cambiarTodos(abrir));
+    return boton;
 }
 
 function mostrarEstado(mensaje, esError = false) {
@@ -211,8 +304,14 @@ function crearSelectorRuta() {
 
     const barra = document.createElement("div");
     barra.className = "selector-ruta";
-    barra.append(crearIcono("ruta"), etiqueta, selector);
-    contenedor.before(barra);
+    barra.append(
+        crearIcono("ruta"),
+        etiqueta,
+        selector,
+        crearBotonMasivo("expandir", "Expandir todo", true),
+        crearBotonMasivo("contraer", "Contraer todo", false)
+    );
+    contenedor.before(crearResumenGeneral(), barra, crearLeyenda());
 }
 
 async function cargarPensum() {
