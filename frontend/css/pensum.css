@@ -226,3 +226,159 @@
         height: 44px;
     }
 }
+
+/* ======== Iconos, etiquetas y detalle del curso ======== */
+.pagina-pensum .icono {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    color: var(--uvg-green);
+}
+
+.pagina-pensum .icono svg {
+    width: 100%;
+    height: 100%;
+}
+
+.pagina-pensum #pensum h2 .icono {
+    width: 26px;
+    height: 26px;
+}
+
+.pagina-pensum .selector-ruta .icono {
+    width: 24px;
+    height: 24px;
+}
+
+/* Fila de cada curso */
+.pagina-pensum .semestre summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    list-style: none;
+}
+
+.pagina-pensum .semestre summary::-webkit-details-marker {
+    display: none;
+}
+
+.pagina-pensum .semestre summary::after {
+    content: "";
+    order: 99;
+    width: 9px;
+    height: 9px;
+    margin-left: 4px;
+    border-right: 2px solid #78909c;
+    border-bottom: 2px solid #78909c;
+    transform: rotate(45deg);
+    transition: transform 0.2s;
+}
+
+.pagina-pensum .semestre details[open] > summary::after {
+    transform: rotate(-135deg);
+}
+
+.pagina-pensum .semestre .nombre-curso {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.pagina-pensum .semestre .codigo {
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #eceff1;
+    color: #37474f;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+}
+
+/* Etiquetas con icono */
+.pagina-pensum .etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px 3px 7px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.pagina-pensum .etiqueta .icono {
+    width: 15px;
+    height: 15px;
+    color: inherit;
+}
+
+.pagina-pensum .etiqueta-creditos,
+.pagina-pensum .etiqueta-total {
+    background: #fff8e1;
+    color: #8a5a00;
+}
+
+.pagina-pensum .etiqueta-comun {
+    background: var(--status-success-bg);
+    color: var(--status-success-text);
+}
+
+.pagina-pensum .etiqueta-ruta {
+    background: #e3f2fd;
+    color: #0d47a1;
+}
+
+.pagina-pensum .etiqueta-pendiente {
+    background: var(--status-warning-bg);
+    color: var(--status-warning-text);
+}
+
+.pagina-pensum .etiqueta-total {
+    margin-left: auto;
+    background: #ffffff;
+    border: 1px solid #f0d78a;
+}
+
+/* Detalle del curso */
+.pagina-pensum .detalle-curso {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px 20px;
+    padding: 14px 18px 18px 36px;
+    background: #fafcfb;
+}
+
+.pagina-pensum .dato {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid #e5e9e7;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.pagina-pensum .dato-nombre {
+    color: #607d8b;
+    font-size: 0.85rem;
+}
+
+.pagina-pensum .dato-nombre::after {
+    content: ":";
+}
+
+.pagina-pensum .dato-valor {
+    margin-left: auto;
+    font-weight: bold;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    .pagina-pensum .detalle-curso {
+        padding-left: 18px;
+    }
+}
