@@ -1,0 +1,228 @@
+/* Pantalla "Pensum académico".
+   Usa la paleta de styles.css (--uvg-green, --uvg-dark-green, etc.). */
+
+.pagina-pensum {
+    font-family: Arial, sans-serif;
+    line-height: 1.45;
+}
+
+/* ---------- Encabezado ---------- */
+.pagina-pensum .encabezado {
+    background: linear-gradient(135deg, var(--uvg-dark-green), var(--uvg-green));
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.pagina-pensum .encabezado-contenido {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 18px 24px 22px;
+}
+
+.pagina-pensum .volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 6px 8px;
+    margin-bottom: 14px;
+    border-radius: 999px;
+    color: #ffffff;
+    font-size: 0.9rem;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.14);
+    transition: background 0.2s;
+}
+
+.pagina-pensum .volver:hover,
+.pagina-pensum .volver:focus-visible {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.pagina-pensum .volver svg {
+    width: 18px;
+    height: 18px;
+}
+
+.pagina-pensum .titulo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.pagina-pensum .titulo-icono {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.pagina-pensum .titulo-icono svg {
+    width: 32px;
+    height: 32px;
+}
+
+.pagina-pensum .titulo h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    color: #ffffff;
+}
+
+.pagina-pensum .titulo p {
+    margin: 4px 0 0;
+    opacity: 0.9;
+}
+
+.pagina-pensum svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ---------- Contenido ---------- */
+.pagina-pensum main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.pagina-pensum .ayuda {
+    margin: 0 0 8px;
+    color: #546e7a;
+}
+
+.pagina-pensum #estado {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    border-left: 4px solid var(--uvg-green);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--uvg-dark-green);
+    font-size: 0.95rem;
+}
+
+.pagina-pensum #estado.error {
+    border-left-color: #b91c1c;
+    background: var(--status-danger-bg);
+    color: var(--status-danger-text);
+}
+
+/* Selector de ruta (lo crea pensum.js) */
+.pagina-pensum .selector-ruta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 8px;
+}
+
+.pagina-pensum .selector-ruta label {
+    font-weight: bold;
+    color: var(--uvg-dark-green);
+}
+
+.pagina-pensum .selector-ruta select {
+    padding: 8px 12px;
+    border: 1px solid var(--uvg-green);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--uvg-dark-green);
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+/* ---------- Años y semestres ---------- */
+.pagina-pensum #pensum h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 32px 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--uvg-green);
+    color: var(--uvg-dark-green);
+    font-size: 1.35rem;
+}
+
+.pagina-pensum .semestre {
+    margin-bottom: 18px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.pagina-pensum .semestre > h3 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 14px 18px;
+    background: var(--status-success-bg);
+    color: var(--uvg-dark-green);
+    font-size: 1.05rem;
+}
+
+/* ---------- Cursos ---------- */
+.pagina-pensum .semestre details {
+    padding: 0;
+    border-bottom: 1px solid #e5e9e7;
+}
+
+.pagina-pensum .semestre details:last-child {
+    border-bottom: 0;
+}
+
+.pagina-pensum .semestre summary {
+    padding: 14px 18px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.15s;
+}
+
+.pagina-pensum .semestre summary:hover {
+    background: #f1f8f4;
+}
+
+.pagina-pensum .semestre summary:focus-visible {
+    outline: 2px solid var(--uvg-green);
+    outline-offset: -2px;
+}
+
+.pagina-pensum .semestre details[open] > summary {
+    background: #f1f8f4;
+    color: var(--uvg-dark-green);
+}
+
+.pagina-pensum .semestre details > p {
+    margin: 0;
+    padding: 6px 18px 6px 36px;
+    background: #fafcfb;
+}
+
+.pagina-pensum .semestre details > p:last-child {
+    padding-bottom: 14px;
+}
+
+@media (max-width: 600px) {
+    .pagina-pensum .encabezado-contenido,
+    .pagina-pensum main {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .pagina-pensum .titulo h1 {
+        font-size: 1.35rem;
+    }
+
+    .pagina-pensum .titulo-icono {
+        width: 44px;
+        height: 44px;
+    }
+}
