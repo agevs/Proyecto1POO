@@ -462,3 +462,37 @@ button:focus-visible {
 .acceso-rapido[hidden] {
     display: none;
 }
+
+/* ENTREGA 6: ADAPTACIÓN Y ACCESIBILIDAD */
+
+/* Mejorar la visualización en pantallas pequeñas */
+@media (max-width: 768px) {
+    .accesos-rapidos {
+        padding: 16px;
+        margin: 16px 0;
+    }
+
+    .accesos-rapidos-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .acceso-rapido {
+        padding: 16px;
+    }
+
+    .accesos-rapidos h3 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Respetar a los usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+    .acceso-rapido {
+        transition: none;
+    }
+
+    .acceso-rapido:hover {
+        transform: none;
+    }
+}
