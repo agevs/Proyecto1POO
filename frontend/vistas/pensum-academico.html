@@ -5,60 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pensum académico - UVG</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f5;
-            color: #263238;
-        }
-
-        main {
-            max-width: 1000px;
-            margin: auto;
-            padding: 24px;
-        }
-
-        h1,
-        h2 {
-            color: #1e8057;
-        }
-
-        a {
-            color: #1e8057;
-        }
-
-        .semestre {
-            background: white;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-        }
-
-        details {
-            padding: 14px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        summary {
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        #estado {
-            padding: 12px 0;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/styles.css?v=6">
+    <link rel="stylesheet" href="../css/pensum.css">
     <script src="../js/pensum.js" defer></script>
 </head>
 
-<body>
-    <main>
-        <a href="dashboard-asignacion.html">← Volver a asignación de cursos</a>
+<body class="pagina-pensum">
+    <header class="encabezado">
+        <div class="encabezado-contenido">
+            <a class="volver" href="dashboard-asignacion.html">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Volver a asignación de cursos
+            </a>
 
-        <h1>Pensum académico</h1>
-        <p>Ingeniería en Ciencia de la Computación y Tecnologías de la Información</p>
-        <p>Selecciona un curso para consultar sus detalles.</p>
+            <div class="titulo">
+                <span class="titulo-icono" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M22 10 12 5 2 10l10 5 10-5z" />
+                        <path d="M6 12v5c3 2 9 2 12 0v-5" />
+                    </svg>
+                </span>
+                <div>
+                    <h1>Pensum académico</h1>
+                    <p>Ingeniería en Ciencia de la Computación y Tecnologías de la Información</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <p class="ayuda">Selecciona un curso para consultar sus detalles.</p>
 
         <p id="estado" role="status">Cargando cursos…</p>
         <div id="pensum"></div>
