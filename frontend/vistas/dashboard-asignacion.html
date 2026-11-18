@@ -100,6 +100,49 @@
 
             </div>
 
+<!-- ENTREGA 6: ACCESOS RÁPIDOS -->
+<section class="accesos-rapidos" aria-label="Accesos rápidos">
+    <h3>¡Bienvenido al portal académico UVG!</h3>
+    <p>
+        Encuentra tus herramientas académicas de forma rápida y sencilla.
+    </p>
+
+    <div class="accesos-rapidos-grid">
+        <a href="pensum-academico.html" class="acceso-rapido">
+            <span class="acceso-icono" aria-hidden="true">📚</span>
+            <strong>Pensum académico</strong>
+            <small>Consulta los cursos de tu carrera.</small>
+        </a>
+
+        <button type="button"
+                class="acceso-rapido"
+                id="btn-acceso-catalogo"
+                data-rol-permitido="ESTUDIANTE"
+                hidden>
+            <span class="acceso-icono" aria-hidden="true">📋</span>
+            <strong>Catálogo de cursos</strong>
+            <small>Consulta las secciones disponibles.</small>
+        </button>
+
+        <a href="administracion-docentes.html"
+           class="acceso-rapido"
+           data-rol-permitido="ADMINISTRADOR"
+           hidden>
+            <span class="acceso-icono" aria-hidden="true">👨‍🏫</span>
+            <strong>Administrar docentes</strong>
+            <small>Gestiona los docentes del sistema.</small>
+        </a>
+
+        <a href="administracion-cursos.html"
+           class="acceso-rapido"
+           data-rol-permitido="ADMINISTRADOR"
+           hidden>
+            <span class="acceso-icono" aria-hidden="true">🗂️</span>
+            <strong>Administrar cursos</strong>
+            <small>Gestiona cursos y secciones.</small>
+        </a>
+    </div>
+</section>
 
             <!-- INFORMACIÓN DE ASIGNACIÓN -->
             <div style="
