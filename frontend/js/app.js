@@ -39,7 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const linkAsignaciones =
         document.getElementById("link-asignaciones");
 
-    const btnAbrirCatalogo =
+    // Entrega 6: botón de acceso rápido al catálogo
+    const btnAccesoCatalogo =
+    document.getElementById("btn-acceso-catalogo");
         document.getElementById("btn-abrir-catalogo");
 
     const modalCatalogo =
@@ -67,6 +69,12 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    // Entrega 6: reutilizar la función del catálogo existente
+    if (btnAccesoCatalogo && btnAbrirCatalogo) {
+    btnAccesoCatalogo.addEventListener("click", () => {
+        btnAbrirCatalogo.click();
+    });
+}
 
     // ABRIR / CERRAR CATÁLOGO GENERAL
     if (btnAbrirCatalogo && modalCatalogo) {
