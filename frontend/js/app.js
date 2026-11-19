@@ -281,22 +281,32 @@ async function cargarCursos() {
 
 function configurarBuscador(cursos, seguimientos) {
     const buscador = document.getElementById("buscador-cursos");
-    const selector = document.getElementById("filtro-estado-cursos");
+    const estado = document.getElementById("filtro-estado-cursos");
+    const anio = document.getElementById("filtro-anio-cursos");
+    const semestre = document.getElementById("filtro-semestre-cursos");
 
-    if (!buscador || !selector) {
-        console.warn("No se encontraron los controles del catalogo.");
+    if (!buscador || !estado || !anio || !semestre) {
+        console.warn("Faltan controles del catalogo.");
         return;
     }
 
+    let numeroSolicitud = 0;
+
     async function aplicarFiltros() {
-        const termino = normalizarTexto(buscador.value);
-        const estado = selector.value;
+        const solicitudActual = ++numeroSolicitud;
+
+        const parametros = new URLSearchParams();
+
+        if (anio.value) parametros.set("anio", anio.value);
+        if (semestre.value) parametros.set("semestre", semestre.value);
+        if (estado.value) parametros.set("estado", estado.value);
+        if (buscador.value.trim()) {
+            parametros.set("busqueda", buscador.value.trim());
+        }
 
         try {
-            const url = estado
-                ? "http://localhost:8080/api/cursos/filtrar?estado="
-                    + encodeURIComponent(estado)
-                : "http://localhost:8080/api/cursos";
+            const url = "http://localhost:8080/api/cursos/filtrar?"
+                + parametros.toString();
 
             const respuesta = await fetch(url);
 
@@ -304,28 +314,24 @@ function configurarBuscador(cursos, seguimientos) {
                 throw new Error("Error HTTP " + respuesta.status);
             }
 
-            const cursosPorEstado = await respuesta.json();
+            const resultado = await respuesta.json();
 
-            const resultado = cursosPorEstado.filter(curso =>
-                normalizarTexto(
-                    `${curso.codigoCurso} ${curso.nombreCurso}`
-                ).includes(termino)
-            );
+            if (solicitudActual !== numeroSolicitud) return;
 
             mostrarCursos(resultado, seguimientos);
 
         } catch (error) {
-            console.error("Error al filtrar cursos:", error);
-            mostrarCursos(cursos.filter(curso =>
-                normalizarTexto(
-                    `${curso.codigoCurso} ${curso.nombreCurso}`
-                ).includes(termino)
-            ), seguimientos);
+            if (solicitudActual !== numeroSolicitud) return;
+
+            console.error("Error al aplicar filtros:", error);
+            // No mostrar todos los cursos como si el filtro hubiera funcionado.
         }
     }
 
     buscador.addEventListener("input", aplicarFiltros);
-    selector.addEventListener("change", aplicarFiltros);
+    estado.addEventListener("change", aplicarFiltros);
+    anio.addEventListener("change", aplicarFiltros);
+    semestre.addEventListener("change", aplicarFiltros);
 }
 
 

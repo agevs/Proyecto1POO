@@ -1274,3 +1274,24 @@ button:focus-visible {
         height: 125px;
     }
 }
+
+/* ENTREGA 6: FILTROS ACADEMICOS */
+
+#filtro-anio-cursos,
+#filtro-semestre-cursos,
+#filtro-estado-cursos {
+    padding: 9px;
+    border: 1px solid #cbd5d1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #263238;
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    #filtro-anio-cursos,
+    #filtro-semestre-cursos,
+    #filtro-estado-cursos {
+        width: 100%;
+    }
+}
