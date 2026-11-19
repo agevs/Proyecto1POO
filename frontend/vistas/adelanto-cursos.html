@@ -1,73 +1,280 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Adelanto de cursos - UVG</title>
-    <link rel="stylesheet" href="../css/styles.css">
-    <style>
-        body { background: #f4f6f5; font-family: Arial, sans-serif; }
-        main { max-width: 850px; margin: 45px auto; padding: 20px; }
-        .panel { background: white; padding: 30px; border-radius: 10px;
-                 box-shadow: 0 3px 15px #00000012; }
-        h1 { color: #187b4c; }
-        label { display: block; margin-top: 18px; font-weight: bold; }
-        input, select { box-sizing: border-box; width: 100%; padding: 12px;
-                        margin-top: 7px; border: 1px solid #bbb;
-                        border-radius: 5px; }
-        button { margin-top: 22px; padding: 13px 20px; background: #198754;
-                 color: white; border: 0; border-radius: 5px;
-                 cursor: pointer; font-weight: bold; }
-        .resultado { margin-top: 25px; padding: 18px; border-radius: 6px; }
-        .aprobado { background: #d1fae5; color: #065f46; }
-        .rechazado { background: #fee2e2; color: #991b1b; }
-        .aviso { color: #555; font-size: 14px; }
-        a { color: #187b4c; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adelanto de cursos - UVG</title>
+<link rel="stylesheet" href="../css/styles.css">
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f5;
+  color: #25352e;
+}
+
+.encabezado {
+  background: linear-gradient(120deg, #145c3e, #21845a);
+  color: white;
+  padding: 25px max(24px, calc((100% - 1050px)/2));
+}
+
+.volver {
+  display: inline-block;
+  color: white;
+  text-decoration: none;
+  background: #ffffff20;
+  padding: 10px 16px;
+  border-radius: 25px;
+  margin-bottom: 20px;
+}
+
+.encabezado h1 {
+  font-size: 32px;
+  margin: 0 0 8px;
+}
+
+.encabezado p {
+  margin: 0;
+  color: #e0f2e8;
+}
+
+main {
+  max-width: 1050px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.indicador {
+  background: white;
+  border: 1px solid #dbe7df;
+  border-left: 5px solid #21845a;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 3px 10px #00000008;
+}
+
+.indicador strong {
+  display: block;
+  color: #176b49;
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.indicador span {
+  font-size: 14px;
+  color: #64746b;
+}
+
+.panel {
+  background: white;
+  padding: 30px;
+  border-radius: 14px;
+  border: 1px solid #dce8e0;
+  box-shadow: 0 4px 15px #00000008;
+}
+
+.panel h2 {
+  margin-top: 0;
+  color: #176b49;
+}
+
+.descripcion {
+  color: #64746b;
+  line-height: 1.6;
+}
+
+label {
+  display: block;
+  margin: 20px 0 8px;
+  font-weight: bold;
+}
+
+input:not([type="checkbox"]), select {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #b9d3c4;
+  border-radius: 8px;
+  background: white;
+  font-size: 15px;
+}
+
+input:focus, select:focus {
+  outline: 2px solid #21845a;
+  outline-offset: 2px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+  font-weight: normal;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+}
+
+button {
+  margin-top: 25px;
+  padding: 14px 25px;
+  border: 0;
+  border-radius: 8px;
+  background: #198754;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #146c43;
+}
+
+.resultado {
+  margin-top: 25px;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.resultado:not(:empty) {
+  padding: 20px;
+}
+
+.aprobado {
+  background: #e1f4e8;
+  color: #176b49;
+  border-left: 5px solid #198754;
+}
+
+.rechazado {
+  background: #fff0ed;
+  color: #9b2929;
+  border-left: 5px solid #c83d3d;
+}
+
+.aviso {
+  background: #f0f7f3;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 25px;
+  color: #52675b;
+  font-size: 14px;
+}
+
+@media (max-width: 650px) {
+  .indicadores {
+    grid-template-columns: 1fr;
+  }
+  .encabezado h1 {
+    font-size: 26px;
+  }
+  .panel {
+    padding: 20px;
+  }
+}
+
+.condiciones {
+  background: #f0f7f3;
+  border-left: 4px solid #198754;
+  border-radius: 6px;
+  padding: 15px 18px;
+  margin: 20px 0;
+}
+
+.condiciones strong {
+  color: #176b49;
+}
+
+.condiciones p {
+  margin: 8px 0 0;
+  color: #52675b;
+  line-height: 1.5;
+}
+
+</style>
 </head>
 <body>
+
+<header class="encabezado">
+  <a class="volver" href="dashboard-asignacion.html">
+    ← Volver a asignación de cursos
+  </a>
+  <h1>🎓 Adelanto de cursos</h1>
+  <p>Evaluación de elegibilidad académica</p>
+</header>
+
 <main>
-    <a href="dashboard-asignacion.html">Volver a asignación de cursos</a>
 
-    <div class="panel">
-        <h1>Adelanto de cursos</h1>
-        <p>Evaluación de elegibilidad académica - RF-14</p>
-        <p class="aviso">
-            Simulación con datos ficticios. No constituye una
-            autorización académica ni realiza asignaciones.
-        </p>
 
-        <form id="form-adelanto">
-            <label for="promedio">Promedio académico</label>
-            <input id="promedio" type="number" min="0" max="100"
-                   step="0.01" value="90" required>
 
-            <label for="anio">Año actual del estudiante</label>
-            <select id="anio">
-                <option value="1">Primer año</option>
-                <option value="2" selected>Segundo año</option>
-                <option value="3">Tercer año</option>
-                <option value="4">Cuarto año</option>
-                <option value="5">Quinto año</option>
-            </select>
+<section class="panel">
 
-            <label for="curso">Curso que desea adelantar</label>
-            <select id="curso">
-                <option value="CC3088">Bases de Datos 1 - Año 3</option>
-                <option value="CC3089">Bases de Datos 2 - Año 4</option>
-            </select>
+  <h2>Evaluación académica</h2>
 
-            <label>
-                <input id="aprobado" type="checkbox"
-                       style="width:auto; margin-right:8px;">
-                He aprobado el prerrequisito del curso seleccionado
-            </label>
+  <div class="condiciones">
+    <strong>Condiciones para solicitar un adelanto</strong>
+    <p>
+      Promedio mínimo de 85 puntos, curso del siguiente año
+      académico y prerrequisitos aprobados.
+    </p>
+  </div>
 
-            <button type="submit">Evaluar adelanto</button>
-        </form>
+  <p class="descripcion">
+    Ingresa tus datos académicos para verificar si cumples
+    las condiciones necesarias para solicitar un adelanto.
+  </p>
 
-        <div id="resultado" role="status" aria-live="polite"></div>
-    </div>
+  <div class="aviso">
+    Esta herramienta es una simulación con datos ficticios.
+    No constituye una autorización académica ni realiza asignaciones.
+  </div>
+
+  <form id="form-adelanto">
+
+    <label for="promedio">Promedio académico</label>
+    <input id="promedio" type="number" min="0" max="100"
+           step="0.01" value="90" required>
+
+    <label for="anio">Año actual del estudiante</label>
+    <select id="anio">
+      <option value="1">Primer año</option>
+      <option value="2" selected>Segundo año</option>
+      <option value="3">Tercer año</option>
+      <option value="4">Cuarto año</option>
+      <option value="5">Quinto año</option>
+    </select>
+
+    <label for="curso">Curso que desea adelantar</label>
+    <select id="curso">
+      <option value="CC3088">Bases de Datos 1 - Año 3</option>
+      <option value="CC3089">Bases de Datos 2 - Año 4</option>
+    </select>
+
+    <label class="checkbox">
+      <input id="aprobado" type="checkbox">
+      He aprobado el prerrequisito del curso seleccionado
+    </label>
+
+    <button type="submit">Evaluar adelanto</button>
+
+  </form>
+
+  <div id="resultado" class="resultado"
+       role="status" aria-live="polite"></div>
+
+</section>
+
 </main>
 
 <script src="../js/adelanto-cursos.js"></script>
