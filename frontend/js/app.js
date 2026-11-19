@@ -83,6 +83,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     modalCatalogo.style.display =
                         "block";
 
+                    btnAbrirCatalogo.classList.add("activo");
+
                     modalCatalogo.scrollIntoView({
                         behavior: "smooth"
                     });
@@ -91,6 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     modalCatalogo.style.display =
                         "none";
+
+                    btnAbrirCatalogo.classList.remove("activo");
                 }
             }
         );
@@ -194,47 +198,53 @@ async function cargarCursos() {
 }
 
 
-function configurarBuscador(
-    cursos,
-    seguimientos
-) {
+function configurarBuscador(cursos, seguimientos) {
+    const buscador = document.getElementById("buscador-cursos");
+    const selector = document.getElementById("filtro-estado-cursos");
 
-    const buscador =
-        document.getElementById(
-            "buscador-cursos"
-        );
-
-    if (
-        !buscador ||
-        buscador.dataset.configurado === "true"
-    ) {
+    if (!buscador || !selector) {
+        console.warn("No se encontraron los controles del catalogo.");
         return;
     }
 
-    buscador.dataset.configurado = "true";
+    async function aplicarFiltros() {
+        const termino = normalizarTexto(buscador.value);
+        const estado = selector.value;
 
-    buscador.addEventListener(
-        "input",
-        (evento) => {
+        try {
+            const url = estado
+                ? "http://localhost:8080/api/cursos/filtrar?estado="
+                    + encodeURIComponent(estado)
+                : "http://localhost:8080/api/cursos";
 
-            const termino = normalizarTexto(
-                evento.target.value
+            const respuesta = await fetch(url);
+
+            if (!respuesta.ok) {
+                throw new Error("Error HTTP " + respuesta.status);
+            }
+
+            const cursosPorEstado = await respuesta.json();
+
+            const resultado = cursosPorEstado.filter(curso =>
+                normalizarTexto(
+                    `${curso.codigoCurso} ${curso.nombreCurso}`
+                ).includes(termino)
             );
 
-            const cursosFiltrados = !termino
-                ? cursos
-                : cursos.filter(
-                    curso => normalizarTexto(
-                        `${curso.codigoCurso} ${curso.nombreCurso}`
-                    ).includes(termino)
-                );
+            mostrarCursos(resultado, seguimientos);
 
-            mostrarCursos(
-                cursosFiltrados,
-                seguimientos
-            );
+        } catch (error) {
+            console.error("Error al filtrar cursos:", error);
+            mostrarCursos(cursos.filter(curso =>
+                normalizarTexto(
+                    `${curso.codigoCurso} ${curso.nombreCurso}`
+                ).includes(termino)
+            ), seguimientos);
         }
-    );
+    }
+
+    buscador.addEventListener("input", aplicarFiltros);
+    selector.addEventListener("change", aplicarFiltros);
 }
 
 
@@ -565,8 +575,8 @@ async function alternarSeguimiento(
             : "🔔 Seguir";
 
         alert(nuevoEstado
-            ? "Seguimiento registrado correctamente."
-            : "Seguimiento desactivado correctamente.");
+            ? `Ahora sigues el curso ${codigoCurso}, sección ${numeroSeccion}. Recibirás alertas cuando cambie su estado.`
+            : `Dejaste de seguir el curso ${codigoCurso}, sección ${numeroSeccion}.`);
 
     } catch (error) {
         console.error("Error al actualizar seguimiento:", error);
@@ -1018,13 +1028,35 @@ async function marcarNotificacionComoLeida(
     try {
 
         // MARCAR NOTIFICACIÓN COMO LEÍDA
-        const respuesta =
-            await fetch(
-                `http://localhost:8080/api/notificaciones/${idNotificacion}/leida`,
-                {
-                    method: "PATCH"
-                }
-            );
+
+const csrfRespuesta = await fetch(
+    "http://localhost:8080/api/auth/csrf",
+    {
+        credentials: "include"
+    }
+);
+
+if (!csrfRespuesta.ok) {
+    throw new Error("No se pudo obtener CSRF");
+}
+
+const csrf = await csrfRespuesta.json();
+
+if (!csrf.token || !csrf.headerName) {
+    throw new Error("Token CSRF invalido");
+}
+
+const respuesta = await fetch(
+    `http://localhost:8080/api/notificaciones/${idNotificacion}/leida`,
+    {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+            [csrf.headerName]: csrf.token
+        }
+    }
+);
+
 
 
         if (!respuesta.ok) {

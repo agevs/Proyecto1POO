@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.uvg.proyectoasignaciones.controller.NotificacionController;
 import com.uvg.proyectoasignaciones.model.Curso;
 import com.uvg.proyectoasignaciones.model.Estudiante;
 import com.uvg.proyectoasignaciones.model.Seccion;
@@ -31,17 +32,21 @@ public class SeguimientoRestController {
     private final EstudianteRepository estudianteRepository;
     private final CursoRepository cursoRepository;
     private final AutorizacionEstudianteService autorizacionEstudianteService;
+    private final NotificacionController notificacionController;
+
 
     public SeguimientoRestController(
             SeguimientoRepository seguimientoRepository,
             EstudianteRepository estudianteRepository,
             CursoRepository cursoRepository,
-            AutorizacionEstudianteService autorizacionEstudianteService) {
+            AutorizacionEstudianteService autorizacionEstudianteService,
+            NotificacionController notificacionController) {
 
         this.seguimientoRepository = seguimientoRepository;
         this.estudianteRepository = estudianteRepository;
         this.cursoRepository = cursoRepository;
         this.autorizacionEstudianteService = autorizacionEstudianteService;
+        this.notificacionController = notificacionController;
     }
 
     // RF-04: CREAR O REACTIVAR SEGUIMIENTO
@@ -169,6 +174,16 @@ public class SeguimientoRestController {
                             seguimientoExistente
                     );
 
+            notificacionController.crearNotificacion(
+                    estudianteOptional.get(),
+                    seccionEncontrada,
+                    "Volviste a seguir el curso "
+                            + curso.getCodigoCurso()
+                            + ", sección "
+                            + seccionEncontrada.getNumeroSeccion()
+                            + ". Recibirás alertas cuando cambie su estado."
+            );
+
             return ResponseEntity.ok(seguimientoReactivado);
         }
 
@@ -184,6 +199,16 @@ public class SeguimientoRestController {
                 seguimientoRepository.save(
                         nuevoSeguimiento
                 );
+
+        notificacionController.crearNotificacion(
+                estudianteOptional.get(),
+                seccionEncontrada,
+                "Comenzaste a seguir el curso "
+                        + curso.getCodigoCurso()
+                        + ", sección "
+                        + seccionEncontrada.getNumeroSeccion()
+                        + ". Recibirás alertas cuando cambie su estado."
+        );
 
         return ResponseEntity.ok(seguimientoGuardado);
     }
@@ -270,6 +295,17 @@ public class SeguimientoRestController {
             seguimiento.desactivar();
             seguimientoRepository.save(seguimiento);
         }
+
+        // RF-05: Notificar cuando se deja de seguir una seccion.
+        notificacionController.crearNotificacion(
+                estudianteOptional.get(),
+                seccionEncontrada,
+                "Dejaste de seguir el curso "
+                        + cursoOptional.get().getCodigoCurso()
+                        + ", sección "
+                        + seccionEncontrada.getNumeroSeccion()
+                        + ". Ya no recibirás alertas sobre sus cambios."
+        );
 
         return ResponseEntity.ok(seguimientoPrincipal);
     }
