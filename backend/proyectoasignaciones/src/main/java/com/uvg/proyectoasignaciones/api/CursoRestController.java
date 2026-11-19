@@ -1,5 +1,6 @@
 package com.uvg.proyectoasignaciones.api;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,32 +58,54 @@ public class CursoRestController {
     }
 
     /**
-     * Filtra los cursos según año, semestre y estado de sus secciones.
+     * Filtra los cursos según año, semestre, estado de sus secciones y texto de búsqueda
+     * (por código o nombre de curso). Todos los parámetros son opcionales y compatibles
+     * con llamadas anteriores que solo usen {@code anio}, {@code semestre} y {@code estado}.
      *
      * @param anio     año académico opcional para filtrar
      * @param semestre semestre opcional para filtrar (ignora mayúsculas y minúsculas)
      * @param estado   estado opcional de sección para filtrar
-     * @return respuesta HTTP con la lista de cursos que cumplen los filtros indicados
+     * @param busqueda texto opcional para buscar por código o nombre del curso
+     * @return respuesta HTTP con la lista de cursos que cumplen los criterios indicados
      */
     @GetMapping("/filtrar")
     public ResponseEntity<List<Curso>> filtrarCursos(
             @RequestParam(required = false) Integer anio,
             @RequestParam(required = false) String semestre,
-            @RequestParam(required = false) String estado) {
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String busqueda) {
+
+        String semestreLimpio = (semestre != null && !semestre.isBlank()) ? semestre.trim() : null;
+        String estadoLimpio = (estado != null && !estado.isBlank()) ? estado.trim() : null;
+        String busquedaLimpia = (busqueda != null && !busqueda.isBlank()) ? busqueda.trim().toLowerCase() : null;
 
         List<Curso> todosLosCursos = cursoRepository.findAll();
+        if (todosLosCursos == null) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
 
-        List<Curso> cursosFiltrados = todosLosCursos.stream().filter(curso -> {
-            boolean cumpleAnio = (anio == null) || (curso.getAnio() == anio);
-            boolean cumpleSemestre = (semestre == null) || (curso.getSemestre() != null && String.valueOf(curso.getSemestre()).equalsIgnoreCase(semestre));
-            boolean cumpleEstado = (estado == null) || curso.getSecciones().stream()
-                    .anyMatch(seccion -> seccion.getEstado() != null && seccion.getEstado().equalsIgnoreCase(estado));
+        List<Curso> cursosFiltrados = todosLosCursos.stream()
+                .filter(curso -> curso != null)
+                .filter(curso -> {
+                    boolean cumpleAnio = (anio == null) || (curso.getAnio() != null && curso.getAnio().equals(anio));
 
-            return cumpleAnio && cumpleSemestre && cumpleEstado;
-        }).toList();
+                    boolean cumpleSemestre = (semestreLimpio == null)
+                            || (curso.getSemestre() != null && String.valueOf(curso.getSemestre()).equalsIgnoreCase(semestreLimpio));
 
-        System.out.println("[FILTROS] Aplicados -> Año: " + anio + ", Semestre: " + semestre + ", Estado: " + estado
-                .concat(" | Cursos encontrados: " + cursosFiltrados.size()));
+                    List<Seccion> secciones = curso.getSecciones();
+                    boolean cumpleEstado = (estadoLimpio == null)
+                            || (secciones != null && secciones.stream()
+                                    .anyMatch(seccion -> seccion != null
+                                            && seccion.getEstado() != null
+                                            && seccion.getEstado().equalsIgnoreCase(estadoLimpio)));
+
+                    boolean cumpleBusqueda = (busquedaLimpia == null)
+                            || (curso.getCodigoCurso() != null && curso.getCodigoCurso().toLowerCase().contains(busquedaLimpia))
+                            || (curso.getNombreCurso() != null && curso.getNombreCurso().toLowerCase().contains(busquedaLimpia));
+
+                    return cumpleAnio && cumpleSemestre && cumpleEstado && cumpleBusqueda;
+                })
+                .toList();
 
         return ResponseEntity.ok(cursosFiltrados);
     }
@@ -102,7 +125,7 @@ public class CursoRestController {
     /**
      * Actualiza el nombre y los créditos de un curso existente.
      *
-     * @param codigoCurso  código identificador del curso
+     * @param codigoCurso   código identificador del curso
      * @param cursoDetalles datos actualizados del curso
      * @return respuesta HTTP {@code 200 OK} con el curso actualizado, o {@code 404 Not Found} si no existe
      */
