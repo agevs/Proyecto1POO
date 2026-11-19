@@ -42,7 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Entrega 6: botón de acceso rápido al catálogo
     const btnAccesoCatalogo =
     document.getElementById("btn-acceso-catalogo");
-        document.getElementById("btn-abrir-catalogo");
+
+const btnAbrirCatalogo =
+    document.getElementById("btn-abrir-catalogo");
 
     const modalCatalogo =
         document.getElementById("modal-catalogo-general");
