@@ -23,6 +23,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
             window.ControlRolesVista?.aplicarVistaRol(rol);
 
+            // Mostrar datos del usuario autenticado.
+            const nombreUsuario =
+                document.getElementById("nombre-usuario");
+
+            const carneUsuario =
+                document.getElementById("carne-usuario");
+
+            const nombreEncabezado =
+                document.getElementById("nombre-encabezado");
+
+            if (nombreUsuario) {
+                nombreUsuario.textContent =
+                    usuario.nombre || "Usuario";
+            }
+
+            if (carneUsuario) {
+                carneUsuario.textContent =
+                    rol === "ESTUDIANTE"
+                        ? (usuario.carne || "")
+                        : "";
+            }
+
+            if (nombreEncabezado) {
+                nombreEncabezado.textContent =
+                    usuario.nombre || "Usuario";
+            }
+
             console.log("Sesion verificada correctamente.");
 
         } catch (error) {
@@ -34,6 +61,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     verificarSesionDashboard();
 
+    // Alternar Mis Alertas desde el encabezado.
+    const btnAlertasEncabezado =
+        document.getElementById("btn-alertas-encabezado");
+
+    if (btnAlertasEncabezado) {
+        btnAlertasEncabezado.addEventListener("click", () => {
+            const btnCatalogo =
+                document.getElementById("btn-abrir-catalogo");
+
+            const modal =
+                document.getElementById("modal-catalogo-general");
+
+            const tab =
+                document.getElementById("tab-alertas");
+
+            if (!btnCatalogo || !modal || !tab ||
+                btnCatalogo.hidden || tab.hidden) {
+                return;
+            }
+
+            const abierto =
+                getComputedStyle(modal).display !== "none";
+
+            const alertasActivas =
+                tab.classList.contains("catalogo-tab-activa");
+
+            if (abierto && alertasActivas) {
+                btnCatalogo.click();
+                return;
+            }
+
+            if (!abierto) {
+                btnCatalogo.click();
+            }
+
+            tab.click();
+
+            modal.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        });
+    }
 
     // ELEMENTOS DE LA INTERFAZ
     const linkAsignaciones =

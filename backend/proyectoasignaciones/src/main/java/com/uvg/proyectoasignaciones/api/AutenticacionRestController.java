@@ -263,7 +263,9 @@ public class AutenticacionRestController {
                         "rol",
                         "ESTUDIANTE",
                         "carne",
-                        estudianteAutenticado.getCarne()
+                        estudianteAutenticado.getCarne(),
+                    "nombre",
+                    estudianteAutenticado.getNombre()
                 )
         );
     }

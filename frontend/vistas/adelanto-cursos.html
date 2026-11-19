@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Adelanto de cursos - UVG</title>
-<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../css/styles.css?v=9">
 <style>
 * { box-sizing: border-box; }
 
@@ -278,5 +278,73 @@ button:hover {
 </main>
 
 <script src="../js/adelanto-cursos.js"></script>
+<!-- ASISTENTE VIRTUAL JACK -->
+<div class="jack-asistente" data-rol-permitido="ESTUDIANTE" hidden>
+    <div class="jack-personaje" id="jack-personaje">
+        <button id="jack-abrir" class="jack-boton"
+                type="button"
+                aria-label="Abrir asistente Jack"
+                aria-controls="jack-ventana"
+                aria-expanded="false">
+            <img src="../img/jack/jack-bienvenida.png"
+                 alt="">
+        </button>
+
+        <div class="jack-controles">
+            <button type="button" id="jack-mover">↔ Mover</button>
+            <button type="button" id="jack-consejo">💡 ¿Sabías que...?</button>
+            <button type="button" id="jack-descansar">☾ Descansar</button>
+        </div>
+    </div>
+
+    <button id="jack-despertar" type="button" hidden>
+        🐉 Mostrar a Jack
+    </button>
+
+    <section id="jack-ventana" class="jack-ventana"
+             aria-label="Asistente académico Jack" hidden>
+        <header class="jack-cabecera">
+            <div>
+                <strong>Jack</strong>
+                <small>Asistente académico UVG</small>
+            </div>
+            <button id="jack-cerrar" type="button"
+                    aria-label="Cerrar asistente">✕</button>
+        </header>
+
+        <div id="jack-mensajes" class="jack-mensajes"
+             role="log" aria-live="polite">
+            <p class="jack-mensaje jack">
+                ¡Hola! Soy Jack. ¿En qué puedo ayudarte?
+            </p>
+        </div>
+
+        <div class="jack-opciones">
+            <button type="button" data-jack-accion="pensum">📚 Pensum</button>
+            <button type="button" data-jack-accion="catalogo">📋 Catálogo</button>
+            <button type="button" data-jack-accion="alertas">🔔 Alertas</button>
+            <button type="button" data-jack-accion="correos">✉️ Correos</button>
+            <button type="button" data-jack-accion="adelantos">🎓 Adelantos</button>
+        </div>
+
+        <form id="jack-formulario" class="jack-formulario">
+            <label for="jack-pregunta" class="jack-etiqueta-oculta">
+                Escribe tu pregunta
+            </label>
+            <input id="jack-pregunta" type="text"
+                   maxlength="250" autocomplete="off"
+                   placeholder="Escribe tu pregunta..." required>
+            <button type="submit" aria-label="Enviar pregunta">➤</button>
+        </form>
+
+        <p class="jack-aviso">
+            Asistente de orientación con respuestas predefinidas.
+        </p>
+    </section>
+</div>
+
+
+<script src="../js/control-roles.js"></script>
+<script src="../js/asistente-jack.js"></script>
 </body>
 </html>

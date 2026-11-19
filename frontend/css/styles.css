@@ -496,3 +496,781 @@ button:focus-visible {
         transform: none;
     }
 }
+
+/* ENTREGA 6: BIENVENIDA DE JACK */
+
+#dashboard-view .jack-bienvenida {
+    display: grid;
+    grid-template-columns: minmax(180px, 34%) 1fr;
+    align-items: center;
+    gap: 24px;
+    min-height: 290px;
+    margin-top: 24px;
+    padding: 24px 36px;
+    background: linear-gradient(110deg, #e4f7e9, #f5fcf6);
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+#dashboard-view .jack-bienvenida-imagen {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 290px;
+}
+
+#dashboard-view .jack-bienvenida-imagen img {
+    max-width: 100%;
+    max-height: 310px;
+    object-fit: contain;
+}
+
+#dashboard-view .jack-bienvenida-texto h1 {
+    color: #075536;
+    font-size: clamp(28px, 3vw, 44px);
+    line-height: 1.15;
+    margin: 16px 0;
+}
+
+#dashboard-view .jack-bienvenida-texto p {
+    color: #33483c;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+#dashboard-view .jack-etiqueta {
+    color: #198754;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+@media (max-width: 768px) {
+    #dashboard-view .jack-bienvenida {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 24px;
+    }
+
+    #dashboard-view .jack-bienvenida-imagen {
+        height: 200px;
+    }
+
+    #dashboard-view .jack-bienvenida-imagen img {
+        max-height: 210px;
+    }
+
+    #dashboard-view .jack-bienvenida-texto p {
+        font-size: 16px;
+    }
+}
+
+/* DASHBOARD JACK: TARJETAS MODERNAS */
+
+#dashboard-view .accesos-rapidos {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 32px 0;
+}
+
+#dashboard-view .accesos-rapidos h3 {
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+#dashboard-view .accesos-rapidos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+#dashboard-view .acceso-rapido {
+    min-height: 135px;
+    border-radius: 18px;
+    padding: 25px;
+    border: 1px solid #d9e9df;
+    background: linear-gradient(135deg, #eaf9f1, #ffffff);
+    box-shadow: 0 6px 18px rgba(0, 70, 40, 0.06);
+}
+
+#dashboard-view .acceso-rapido:nth-child(2) {
+    background: linear-gradient(135deg, #f2ecff, #ffffff);
+    border-color: #e8ddfa;
+}
+
+#dashboard-view .acceso-rapido strong {
+    font-size: 20px;
+}
+
+#dashboard-view .acceso-icono {
+    font-size: 32px;
+}
+
+@media (max-width: 768px) {
+    #dashboard-view .accesos-rapidos-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* DASHBOARD JACK: MENU LATERAL MODERNO */
+
+#dashboard-view > div:first-child {
+    background: linear-gradient(
+        180deg,
+        #07583c 0%,
+        #06452f 100%
+    ) !important;
+    box-shadow: 4px 0 18px rgba(0, 0, 0, 0.08);
+}
+
+#dashboard-view .menu-estudiante {
+    margin-top: 28px;
+}
+
+#dashboard-view .menu-estudiante .menu-enlace {
+    border-radius: 12px;
+    padding: 15px 16px;
+    font-size: 14px;
+    transition: background 0.2s ease;
+}
+
+#dashboard-view .menu-estudiante .menu-enlace:hover,
+#dashboard-view .menu-estudiante .menu-enlace:focus-visible {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+#dashboard-view .menu-estudiante .menu-enlace.activo {
+    background: #208454;
+    font-weight: 700;
+}
+
+
+/* DASHBOARD JACK: PERFIL Y ENCABEZADO */
+
+#dashboard-view .perfil-lateral {
+    padding: 8px 0 12px;
+}
+
+#dashboard-view .perfil-etiqueta {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #b9f3d0;
+}
+
+#dashboard-view .perfil-lateral h3 {
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 12px 0 8px;
+    overflow-wrap: anywhere;
+}
+
+#dashboard-view .perfil-lateral p {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+#dashboard-view .encabezado-institucion {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #208454;
+}
+
+#dashboard-view .encabezado-identidad h2 {
+    margin: 8px 0;
+}
+
+#dashboard-view .encabezado-acciones {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+#dashboard-view #nombre-encabezado {
+    font-size: 14px;
+    font-weight: 600;
+    color: #175d3c;
+}
+
+#dashboard-view .btn-alertas-encabezado {
+    background: #eef8f2;
+    border: 1px solid #d5e8db;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#dashboard-view .btn-alertas-encabezado:hover {
+    background: #d1fae5;
+}
+
+#dashboard-view .btn-alertas-encabezado[hidden] {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    #dashboard-view .encabezado-acciones {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #dashboard-view #nombre-encabezado {
+        font-size: 12px;
+    }
+}
+
+/* LOGOTIPO INSTITUCIONAL UVG */
+
+#dashboard-view .logo-institucional {
+    display: flex;
+    align-items: center;
+    padding: 8px 0 22px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+#dashboard-view .logo-institucional img {
+    display: block;
+    width: 100%;
+    max-width: 205px;
+    height: auto;
+    object-fit: contain;
+}
+
+
+/* DASHBOARD JACK: LOGOTIPO UVG */
+
+#dashboard-view .logo-institucional {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 24px;
+    min-height: 0;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#dashboard-view .logo-institucional img {
+    width: 100%;
+    max-width: 205px;
+    height: auto;
+    max-height: 85px;
+    object-fit: contain;
+}
+
+
+/* AJUSTE FINAL DEL LOGOTIPO UVG */
+
+#dashboard-view .logo-institucional {
+    padding: 10px 14px;
+    min-height: 0;
+    margin-bottom: 20px;
+    border-radius: 12px;
+}
+
+#dashboard-view .logo-institucional img {
+    width: 100%;
+    max-width: 240px;
+    max-height: 65px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* ASISTENTE VIRTUAL JACK */
+
+.jack-asistente[hidden],
+.jack-ventana[hidden] {
+    display: none !important;
+}
+
+.jack-asistente {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+}
+
+.jack-boton {
+    width: 64px;
+    height: 64px;
+    border: none;
+    border-radius: 50%;
+    background: #087c50;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,.2);
+}
+
+.jack-ventana {
+    position: absolute;
+    bottom: 78px;
+    right: 0;
+    width: min(360px, calc(100vw - 32px));
+    max-height: min(560px, calc(100vh - 120px));
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid #d5e8db;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 35px rgba(0,0,0,.18);
+}
+
+.jack-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #07583c;
+    color: white;
+    padding: 16px;
+}
+
+.jack-cabecera small {
+    display: block;
+    margin-top: 4px;
+    color: #d1fae5;
+}
+
+.jack-cabecera button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.jack-mensajes {
+    min-height: 100px;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.jack-mensaje {
+    max-width: 85%;
+    margin: 0;
+    padding: 11px 13px;
+    border-radius: 13px;
+    line-height: 1.5;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.jack-mensaje.jack {
+    align-self: flex-start;
+    background: #e9f7ee;
+    color: #174b35;
+}
+
+.jack-mensaje.usuario {
+    align-self: flex-end;
+    background: #087c50;
+    color: white;
+}
+
+.jack-opciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    padding: 12px;
+}
+
+.jack-opciones button {
+    background: #f0f8f3;
+    border: 1px solid #cfe7d7;
+    border-radius: 20px;
+    padding: 8px 11px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.jack-formulario {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.jack-formulario input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #d5e8db;
+    border-radius: 10px;
+    padding: 11px;
+}
+
+.jack-formulario button {
+    background: #087c50;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0 15px;
+    cursor: pointer;
+}
+
+.jack-etiqueta-oculta {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.jack-aviso {
+    margin: 0;
+    padding: 0 12px 12px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+@media (max-width: 480px) {
+    .jack-asistente {
+        right: 12px;
+        bottom: 12px;
+    }
+}
+
+/* JACK: PERSONAJE INTERACTIVO */
+
+.jack-asistente {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+}
+
+.jack-personaje {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.jack-boton {
+    width: 155px;
+    height: 190px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    cursor: pointer;
+    animation: jack-flotar 3s ease-in-out infinite;
+}
+
+.jack-boton img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.jack-controles {
+    display: flex;
+    gap: 6px;
+}
+
+.jack-controles button,
+#jack-despertar {
+    padding: 8px 12px;
+    background: #ffffff;
+    color: #07583c;
+    border: 1px solid #cfe7d7;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,.08);
+}
+
+#jack-despertar[hidden] {
+    display: none;
+}
+
+.jack-ventana {
+    bottom: 240px;
+}
+
+@keyframes jack-flotar {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .jack-boton {
+        animation: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .jack-boton {
+        width: 105px;
+        height: 130px;
+    }
+
+    .jack-ventana {
+        bottom: 180px;
+    }
+}
+
+/* AJUSTES DE VISIBILIDAD DE JACK */
+
+.jack-personaje[hidden] {
+    display: none !important;
+}
+
+.jack-asistente.jack-izquierda .jack-ventana {
+    right: auto;
+    left: 0;
+}
+
+.jack-ventana {
+    max-height: min(500px, calc(100vh - 280px));
+}
+
+.jack-mensajes {
+    min-height: 70px;
+    flex: 1 1 auto;
+}
+
+@media (max-height: 650px) {
+    .jack-ventana {
+        bottom: 100px;
+        max-height: calc(100vh - 120px);
+    }
+}
+
+/* JACK: AJUSTES DE POSICION Y CHAT */
+
+.jack-boton {
+    width: 135px;
+    height: 165px;
+}
+
+.jack-personaje {
+    gap: 4px;
+}
+
+.jack-ventana {
+    bottom: 215px;
+    width: min(350px, calc(100vw - 32px));
+    max-height: min(440px, calc(100vh - 240px));
+}
+
+.jack-mensajes {
+    min-height: 65px;
+    max-height: 220px;
+    flex: 0 1 auto;
+    overflow-y: auto;
+}
+
+.jack-controles button {
+    padding: 7px 10px;
+    font-size: 11px;
+}
+
+@media (max-width: 480px) {
+    .jack-boton {
+        width: 100px;
+        height: 125px;
+    }
+
+    .jack-ventana {
+        bottom: 165px;
+        max-height: calc(100vh - 190px);
+    }
+}
+
+/* JACK: AJUSTES FINALES DEL CHAT */
+
+.jack-mensajes {
+    min-height: 80px;
+    max-height: 240px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #b8d8c6 transparent;
+    scroll-behavior: smooth;
+}
+
+.jack-mensajes::-webkit-scrollbar {
+    width: 6px;
+}
+
+.jack-mensajes::-webkit-scrollbar-thumb {
+    background: #b8d8c6;
+    border-radius: 10px;
+}
+
+.jack-mensajes::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.jack-ventana {
+    max-height: min(480px, calc(100vh - 100px));
+}
+
+.jack-mensaje {
+    flex-shrink: 0;
+}
+
+
+/* JACK: ACCESOS DESDE RESPUESTAS */
+
+.jack-acceso {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 9px 14px;
+    background: #087c50;
+    color: white;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.jack-acceso:hover {
+    background: #07583c;
+    color: white;
+}
+
+.jack-acceso:focus-visible {
+    outline: 3px solid #fbbf24;
+    outline-offset: 2px;
+}
+
+
+/* JACK: CONTROLES DEL PERSONAJE */
+
+.jack-controles {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 240px;
+}
+
+.jack-controles button {
+    white-space: nowrap;
+}
+
+/* JACK: POSICION SEGURA DEL CHAT */
+
+.jack-asistente.jack-izquierda .jack-ventana {
+    left: 0;
+    right: auto;
+}
+
+.jack-ventana {
+    box-sizing: border-box;
+    width: min(350px, calc(100vw - 32px));
+}
+
+@media (max-width: 600px) {
+    .jack-asistente.jack-izquierda {
+        left: 12px !important;
+        right: auto !important;
+    }
+
+    .jack-asistente.jack-izquierda .jack-ventana {
+        left: 0;
+        right: auto;
+    }
+}
+
+
+/* JACK: OCULTAR PERSONAJE DURANTE EL CHAT */
+
+.jack-boton[hidden],
+.jack-controles[hidden] {
+    display: none !important;
+}
+
+/* Mantener la ventana cerca de la parte inferior */
+.jack-ventana {
+    bottom: 15px;
+}
+
+/* Posicionar correctamente el chat al mover Jack */
+.jack-asistente.jack-izquierda .jack-ventana {
+    left: 0;
+    right: auto;
+}
+
+/* JACK: ESTILOS AISLADOS PARA TODAS LAS PAGINAS */
+
+.jack-asistente .jack-opciones button {
+    color: #174b35 !important;
+    background: #f0f8f3 !important;
+    border: 1px solid #cfe7d7 !important;
+    opacity: 1 !important;
+    font-weight: 500;
+}
+
+.jack-asistente .jack-formulario input {
+    color: #263238;
+    background: #ffffff;
+    opacity: 1;
+}
+
+.jack-asistente .jack-formulario button {
+    color: #ffffff !important;
+    background: #087c50 !important;
+    opacity: 1 !important;
+}
+
+.jack-asistente .jack-mensajes {
+    min-height: 100px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.jack-asistente .jack-ventana {
+    max-height: min(520px, calc(100vh - 40px));
+}
+
+
+/* JACK: IMAGEN UNIFORME EN TODAS LAS PAGINAS */
+
+.jack-asistente .jack-boton {
+    display: block;
+    width: 135px;
+    height: 165px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none;
+    overflow: visible;
+}
+
+.jack-asistente .jack-boton img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: transparent !important;
+    border: none;
+    box-shadow: none;
+}
+
+.jack-asistente .jack-boton[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 480px) {
+    .jack-asistente .jack-boton {
+        width: 100px;
+        height: 125px;
+    }
+}
