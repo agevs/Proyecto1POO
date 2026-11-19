@@ -11,12 +11,17 @@ import com.uvg.proyectoasignaciones.model.Notificacion;
 import com.uvg.proyectoasignaciones.model.Seccion;
 import com.uvg.proyectoasignaciones.repository.NotificacionRepository;
 import com.uvg.proyectoasignaciones.service.correo.ServicioCorreo;
+import com.uvg.proyectoasignaciones.service.correo.RegistroCorreoSimulado;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class NotificacionController {
 
     private final NotificacionRepository notificacionRepository;
     private final ServicioCorreo servicioCorreo;
+
+    @Autowired(required = false)
+    private RegistroCorreoSimulado registroCorreoSimulado;
 
     public NotificacionController(
             NotificacionRepository notificacionRepository,
@@ -41,11 +46,23 @@ public class NotificacionController {
             String correo = estudiante.getCorreo();
 
             if (correo != null && !correo.isBlank()) {
+                String asunto =
+                        "Notificación académica - Portal UVG";
+
                 servicioCorreo.enviarNotificacion(
                         correo,
-                        "Notificacion academica - Proyecto POO UVG",
+                        asunto,
                         mensaje.trim()
                 );
+
+                if (registroCorreoSimulado != null) {
+                    registroCorreoSimulado.registrar(
+                            estudiante.getCarne(),
+                            correo,
+                            asunto,
+                            mensaje.trim()
+                    );
+                }
             }
 
         } catch (RuntimeException error) {

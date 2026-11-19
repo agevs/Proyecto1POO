@@ -83,7 +83,9 @@ public class SecurityConfig {
                     // Funciones estudiantiles.
                     .requestMatchers(
                             "/api/seguimientos/**",
-                            "/api/notificaciones/**"
+                            "/api/notificaciones/**",
+                            "/api/correos-simulados",
+                            "/api/correos-simulados/**"
                     ).hasRole("ESTUDIANTE")
 
                     // Consultar y cerrar sesion.

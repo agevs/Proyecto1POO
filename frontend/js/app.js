@@ -120,6 +120,7 @@ const btnAbrirCatalogo =
     );
 
     cargarNotificaciones();
+    configurarCorreosSimulados();
 });
 
 
@@ -1182,4 +1183,124 @@ function escaparTexto(valor) {
     const elemento = document.createElement("span");
     elemento.textContent = valor ?? "";
     return elemento.innerHTML;
+}
+
+
+// ENTREGA 6: BANDEJA DE CORREOS SIMULADOS
+
+function configurarCorreosSimulados() {
+    const tabCorreos = document.getElementById("tab-correos");
+    const tabCatalogo = document.getElementById("tab-catalogo");
+    const tabAlertas = document.getElementById("tab-alertas");
+
+    const panelCorreos = document.getElementById("panel-correos");
+    const panelCatalogo = document.getElementById("panel-catalogo");
+    const panelAlertas = document.getElementById("panel-alertas");
+
+    if (!tabCorreos || !panelCorreos) return;
+
+    function ocultarCorreos() {
+        panelCorreos.hidden = true;
+        tabCorreos.classList.remove("catalogo-tab-activa");
+    }
+
+    tabCatalogo?.addEventListener("click", ocultarCorreos);
+    tabAlertas?.addEventListener("click", ocultarCorreos);
+
+    tabCorreos.addEventListener("click", async () => {
+        if (panelCatalogo) panelCatalogo.hidden = true;
+        if (panelAlertas) panelAlertas.hidden = true;
+
+        panelCorreos.hidden = false;
+
+        tabCatalogo?.classList.remove("catalogo-tab-activa");
+        tabAlertas?.classList.remove("catalogo-tab-activa");
+        tabCorreos.classList.add("catalogo-tab-activa");
+
+        await cargarCorreosSimulados();
+    });
+}
+
+async function cargarCorreosSimulados() {
+    const estado = document.getElementById("estado-correos");
+    const lista = document.getElementById("lista-correos");
+
+    if (!estado || !lista) return;
+
+    estado.textContent = "Cargando correos simulados...";
+    lista.replaceChildren();
+
+    try {
+        const respuesta = await fetch(
+            "http://localhost:8080/api/correos-simulados",
+            { credentials: "include" }
+        );
+
+        if (!respuesta.ok) {
+            throw new Error("HTTP " + respuesta.status);
+        }
+
+        const correos = await respuesta.json();
+
+        if (!Array.isArray(correos)) {
+            throw new Error("Respuesta inesperada");
+        }
+
+        estado.textContent = correos.length
+            ? correos.length + " correo(s) simulado(s)"
+            : "Todavia no tienes correos simulados.";
+
+        for (const correo of correos) {
+            const tarjeta = document.createElement("article");
+
+            tarjeta.style.cssText =
+                "background:#f0f7f3;border-left:4px solid #198754;" +
+                "padding:18px;margin:12px 0;border-radius:8px;";
+
+            const titulo = document.createElement("h3");
+            titulo.textContent = correo.asunto || "Sin asunto";
+
+            const destinatario = document.createElement("p");
+            destinatario.textContent =
+                "Para: " + (correo.destinatario || "");
+
+            const fecha = document.createElement("small");
+            fecha.textContent = formatearFechaCorreo(correo.fecha);
+
+            const mensaje = document.createElement("p");
+            mensaje.textContent = correo.mensaje || "";
+            mensaje.style.whiteSpace = "pre-wrap";
+
+            tarjeta.append(titulo, destinatario, fecha, mensaje);
+            lista.appendChild(tarjeta);
+        }
+
+    } catch (error) {
+        estado.textContent =
+            "No se pudieron cargar los correos simulados.";
+        console.error("Error al consultar correos:", error);
+    }
+}
+
+
+// Formato de fecha para la bandeja de correos simulados.
+function formatearFechaCorreo(valor) {
+    if (!valor) return "Fecha no disponible";
+
+    const partes = valor.match(
+        /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/
+    );
+
+    if (!partes) return valor;
+
+    const dia = partes[3];
+    const mes = partes[2];
+    const anio = partes[1];
+    const hora24 = Number(partes[4]);
+    const minutos = partes[5];
+
+    const periodo = hora24 >= 12 ? "p. m." : "a. m.";
+    const hora12 = hora24 % 12 || 12;
+
+    return `${dia}/${mes}/${anio}, ${hora12}:${minutos} ${periodo}`;
 }

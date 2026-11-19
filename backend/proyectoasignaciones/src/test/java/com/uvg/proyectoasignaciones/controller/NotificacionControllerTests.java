@@ -106,7 +106,7 @@ class NotificacionControllerTests {
 
         orden.verify(servicioCorreo).enviarNotificacion(
                 "estudiante@uvg.edu.gt",
-                "Notificacion academica - Proyecto POO UVG",
+                "Notificación académica - Portal UVG",
                 "Cambio de estado"
         );
 
