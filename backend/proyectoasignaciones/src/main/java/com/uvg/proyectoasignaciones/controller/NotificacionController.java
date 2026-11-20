@@ -10,14 +10,25 @@ import com.uvg.proyectoasignaciones.model.Estudiante;
 import com.uvg.proyectoasignaciones.model.Notificacion;
 import com.uvg.proyectoasignaciones.model.Seccion;
 import com.uvg.proyectoasignaciones.repository.NotificacionRepository;
+import com.uvg.proyectoasignaciones.service.correo.ServicioCorreo;
+import com.uvg.proyectoasignaciones.service.correo.RegistroCorreoSimulado;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class NotificacionController {
 
     private final NotificacionRepository notificacionRepository;
+    private final ServicioCorreo servicioCorreo;
 
-    public NotificacionController(NotificacionRepository notificacionRepository) {
+    @Autowired(required = false)
+    private RegistroCorreoSimulado registroCorreoSimulado;
+
+    public NotificacionController(
+            NotificacionRepository notificacionRepository,
+            ServicioCorreo servicioCorreo) {
+
         this.notificacionRepository = notificacionRepository;
+        this.servicioCorreo = servicioCorreo;
     }
 
     public Notificacion crearNotificacion(Estudiante estudiante, Seccion seccion, String mensaje) {
@@ -27,7 +38,41 @@ public class NotificacionController {
 
         Notificacion notificacion = new Notificacion(
                 estudiante.getCarne(), mensaje.trim(), LocalDateTime.now().toString(), seccion);
-        return notificacionRepository.save(notificacion);
+        Notificacion guardada =
+                notificacionRepository.save(notificacion);
+
+        // RF-13: solicitar correo despues de guardar la alerta.
+        try {
+            String correo = estudiante.getCorreo();
+
+            if (correo != null && !correo.isBlank()) {
+                String asunto =
+                        "Notificación académica - Portal UVG";
+
+                servicioCorreo.enviarNotificacion(
+                        correo,
+                        asunto,
+                        mensaje.trim()
+                );
+
+                if (registroCorreoSimulado != null) {
+                    registroCorreoSimulado.registrar(
+                            estudiante.getCarne(),
+                            correo,
+                            asunto,
+                            mensaje.trim()
+                    );
+                }
+            }
+
+        } catch (RuntimeException error) {
+            // El correo no debe impedir la alerta interna.
+            System.err.println(
+                    "RF-13: no se pudo procesar el correo."
+            );
+        }
+
+        return guardada;
     }
 
     public List<Notificacion> obtenerNotificaciones(Estudiante estudiante) {

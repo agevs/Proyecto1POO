@@ -23,6 +23,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
             window.ControlRolesVista?.aplicarVistaRol(rol);
 
+            // Mostrar datos del usuario autenticado.
+            const nombreUsuario =
+                document.getElementById("nombre-usuario");
+
+            const carneUsuario =
+                document.getElementById("carne-usuario");
+
+            const nombreEncabezado =
+                document.getElementById("nombre-encabezado");
+
+            if (nombreUsuario) {
+                nombreUsuario.textContent =
+                    usuario.nombre || "Usuario";
+            }
+
+            if (carneUsuario) {
+                carneUsuario.textContent =
+                    rol === "ESTUDIANTE"
+                        ? (usuario.carne || "")
+                        : "";
+            }
+
+            if (nombreEncabezado) {
+                nombreEncabezado.textContent =
+                    usuario.nombre || "Usuario";
+            }
+
             console.log("Sesion verificada correctamente.");
 
         } catch (error) {
@@ -34,13 +61,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
     verificarSesionDashboard();
 
+    // Alternar Mis Alertas desde el encabezado.
+    const btnAlertasEncabezado =
+        document.getElementById("btn-alertas-encabezado");
+
+    if (btnAlertasEncabezado) {
+        btnAlertasEncabezado.addEventListener("click", () => {
+            const btnCatalogo =
+                document.getElementById("btn-abrir-catalogo");
+
+            const modal =
+                document.getElementById("modal-catalogo-general");
+
+            const tab =
+                document.getElementById("tab-alertas");
+
+            if (!btnCatalogo || !modal || !tab ||
+                btnCatalogo.hidden || tab.hidden) {
+                return;
+            }
+
+            const abierto =
+                getComputedStyle(modal).display !== "none";
+
+            const alertasActivas =
+                tab.classList.contains("catalogo-tab-activa");
+
+            if (abierto && alertasActivas) {
+                btnCatalogo.click();
+                return;
+            }
+
+            if (!abierto) {
+                btnCatalogo.click();
+            }
+
+            tab.click();
+
+            modal.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        });
+    }
 
     // ELEMENTOS DE LA INTERFAZ
     const linkAsignaciones =
         document.getElementById("link-asignaciones");
 
-    const btnAbrirCatalogo =
-        document.getElementById("btn-abrir-catalogo");
+    // Entrega 6: botón de acceso rápido al catálogo
+    const btnAccesoCatalogo =
+    document.getElementById("btn-acceso-catalogo");
+
+const btnAbrirCatalogo =
+    document.getElementById("btn-abrir-catalogo");
 
     const modalCatalogo =
         document.getElementById("modal-catalogo-general");
@@ -67,6 +141,12 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    // Entrega 6: reutilizar la función del catálogo existente
+    if (btnAccesoCatalogo && btnAbrirCatalogo) {
+    btnAccesoCatalogo.addEventListener("click", () => {
+        btnAbrirCatalogo.click();
+    });
+}
 
     // ABRIR / CERRAR CATÁLOGO GENERAL
     if (btnAbrirCatalogo && modalCatalogo) {
@@ -110,6 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     cargarNotificaciones();
+    configurarCorreosSimulados();
 });
 
 
@@ -200,22 +281,32 @@ async function cargarCursos() {
 
 function configurarBuscador(cursos, seguimientos) {
     const buscador = document.getElementById("buscador-cursos");
-    const selector = document.getElementById("filtro-estado-cursos");
+    const estado = document.getElementById("filtro-estado-cursos");
+    const anio = document.getElementById("filtro-anio-cursos");
+    const semestre = document.getElementById("filtro-semestre-cursos");
 
-    if (!buscador || !selector) {
-        console.warn("No se encontraron los controles del catalogo.");
+    if (!buscador || !estado || !anio || !semestre) {
+        console.warn("Faltan controles del catalogo.");
         return;
     }
 
+    let numeroSolicitud = 0;
+
     async function aplicarFiltros() {
-        const termino = normalizarTexto(buscador.value);
-        const estado = selector.value;
+        const solicitudActual = ++numeroSolicitud;
+
+        const parametros = new URLSearchParams();
+
+        if (anio.value) parametros.set("anio", anio.value);
+        if (semestre.value) parametros.set("semestre", semestre.value);
+        if (estado.value) parametros.set("estado", estado.value);
+        if (buscador.value.trim()) {
+            parametros.set("busqueda", buscador.value.trim());
+        }
 
         try {
-            const url = estado
-                ? "http://localhost:8080/api/cursos/filtrar?estado="
-                    + encodeURIComponent(estado)
-                : "http://localhost:8080/api/cursos";
+            const url = "http://localhost:8080/api/cursos/filtrar?"
+                + parametros.toString();
 
             const respuesta = await fetch(url);
 
@@ -223,28 +314,24 @@ function configurarBuscador(cursos, seguimientos) {
                 throw new Error("Error HTTP " + respuesta.status);
             }
 
-            const cursosPorEstado = await respuesta.json();
+            const resultado = await respuesta.json();
 
-            const resultado = cursosPorEstado.filter(curso =>
-                normalizarTexto(
-                    `${curso.codigoCurso} ${curso.nombreCurso}`
-                ).includes(termino)
-            );
+            if (solicitudActual !== numeroSolicitud) return;
 
             mostrarCursos(resultado, seguimientos);
 
         } catch (error) {
-            console.error("Error al filtrar cursos:", error);
-            mostrarCursos(cursos.filter(curso =>
-                normalizarTexto(
-                    `${curso.codigoCurso} ${curso.nombreCurso}`
-                ).includes(termino)
-            ), seguimientos);
+            if (solicitudActual !== numeroSolicitud) return;
+
+            console.error("Error al aplicar filtros:", error);
+            // No mostrar todos los cursos como si el filtro hubiera funcionado.
         }
     }
 
     buscador.addEventListener("input", aplicarFiltros);
-    selector.addEventListener("change", aplicarFiltros);
+    estado.addEventListener("change", aplicarFiltros);
+    anio.addEventListener("change", aplicarFiltros);
+    semestre.addEventListener("change", aplicarFiltros);
 }
 
 
@@ -1172,4 +1259,124 @@ function escaparTexto(valor) {
     const elemento = document.createElement("span");
     elemento.textContent = valor ?? "";
     return elemento.innerHTML;
+}
+
+
+// ENTREGA 6: BANDEJA DE CORREOS SIMULADOS
+
+function configurarCorreosSimulados() {
+    const tabCorreos = document.getElementById("tab-correos");
+    const tabCatalogo = document.getElementById("tab-catalogo");
+    const tabAlertas = document.getElementById("tab-alertas");
+
+    const panelCorreos = document.getElementById("panel-correos");
+    const panelCatalogo = document.getElementById("panel-catalogo");
+    const panelAlertas = document.getElementById("panel-alertas");
+
+    if (!tabCorreos || !panelCorreos) return;
+
+    function ocultarCorreos() {
+        panelCorreos.hidden = true;
+        tabCorreos.classList.remove("catalogo-tab-activa");
+    }
+
+    tabCatalogo?.addEventListener("click", ocultarCorreos);
+    tabAlertas?.addEventListener("click", ocultarCorreos);
+
+    tabCorreos.addEventListener("click", async () => {
+        if (panelCatalogo) panelCatalogo.hidden = true;
+        if (panelAlertas) panelAlertas.hidden = true;
+
+        panelCorreos.hidden = false;
+
+        tabCatalogo?.classList.remove("catalogo-tab-activa");
+        tabAlertas?.classList.remove("catalogo-tab-activa");
+        tabCorreos.classList.add("catalogo-tab-activa");
+
+        await cargarCorreosSimulados();
+    });
+}
+
+async function cargarCorreosSimulados() {
+    const estado = document.getElementById("estado-correos");
+    const lista = document.getElementById("lista-correos");
+
+    if (!estado || !lista) return;
+
+    estado.textContent = "Cargando correos simulados...";
+    lista.replaceChildren();
+
+    try {
+        const respuesta = await fetch(
+            "http://localhost:8080/api/correos-simulados",
+            { credentials: "include" }
+        );
+
+        if (!respuesta.ok) {
+            throw new Error("HTTP " + respuesta.status);
+        }
+
+        const correos = await respuesta.json();
+
+        if (!Array.isArray(correos)) {
+            throw new Error("Respuesta inesperada");
+        }
+
+        estado.textContent = correos.length
+            ? correos.length + " correo(s) simulado(s)"
+            : "Todavia no tienes correos simulados.";
+
+        for (const correo of correos) {
+            const tarjeta = document.createElement("article");
+
+            tarjeta.style.cssText =
+                "background:#f0f7f3;border-left:4px solid #198754;" +
+                "padding:18px;margin:12px 0;border-radius:8px;";
+
+            const titulo = document.createElement("h3");
+            titulo.textContent = correo.asunto || "Sin asunto";
+
+            const destinatario = document.createElement("p");
+            destinatario.textContent =
+                "Para: " + (correo.destinatario || "");
+
+            const fecha = document.createElement("small");
+            fecha.textContent = formatearFechaCorreo(correo.fecha);
+
+            const mensaje = document.createElement("p");
+            mensaje.textContent = correo.mensaje || "";
+            mensaje.style.whiteSpace = "pre-wrap";
+
+            tarjeta.append(titulo, destinatario, fecha, mensaje);
+            lista.appendChild(tarjeta);
+        }
+
+    } catch (error) {
+        estado.textContent =
+            "No se pudieron cargar los correos simulados.";
+        console.error("Error al consultar correos:", error);
+    }
+}
+
+
+// Formato de fecha para la bandeja de correos simulados.
+function formatearFechaCorreo(valor) {
+    if (!valor) return "Fecha no disponible";
+
+    const partes = valor.match(
+        /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/
+    );
+
+    if (!partes) return valor;
+
+    const dia = partes[3];
+    const mes = partes[2];
+    const anio = partes[1];
+    const hora24 = Number(partes[4]);
+    const minutos = partes[5];
+
+    const periodo = hora24 >= 12 ? "p. m." : "a. m.";
+    const hora12 = hora24 % 12 || 12;
+
+    return `${dia}/${mes}/${anio}, ${hora12}:${minutos} ${periodo}`;
 }

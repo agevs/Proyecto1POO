@@ -55,6 +55,17 @@ public class CargadorDatos implements CommandLineRunner {
             );
         }
 
+
+        // Entrega 6: completar periodos academicos confirmados.
+        // No sobrescribir valores existentes.
+        completarPeriodo("CC2005", 1, 1);
+        completarPeriodo("CC2007", 1, 1);
+        completarPeriodo("CC2008", 1, 2);
+        completarPeriodo("CU174", 1, 1);
+        completarPeriodo("CU176", 1, 1);
+        completarPeriodo("CU178", 1, 1);
+        completarPeriodo("QQ2018", 1, 1);
+
         // Crear estudiante de prueba solo si no existe
         if (estudianteRepository.findByCarne("26594").isEmpty()) {
 
@@ -90,5 +101,27 @@ public class CargadorDatos implements CommandLineRunner {
                     "Estudiante inicial guardado con BCrypt."
             );
         }
+    }
+
+    private void completarPeriodo(
+            String codigo, int anio, int semestre) {
+
+        cursoRepository.findById(codigo).ifPresent(curso -> {
+            boolean actualizado = false;
+
+            if (curso.getAnio() == null) {
+                curso.setAnio(anio);
+                actualizado = true;
+            }
+
+            if (curso.getSemestre() == null) {
+                curso.setSemestre(semestre);
+                actualizado = true;
+            }
+
+            if (actualizado) {
+                cursoRepository.save(curso);
+            }
+        });
     }
 }

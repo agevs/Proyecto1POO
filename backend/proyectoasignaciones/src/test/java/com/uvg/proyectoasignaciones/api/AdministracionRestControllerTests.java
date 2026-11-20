@@ -22,6 +22,11 @@ import com.uvg.proyectoasignaciones.model.Seguimiento;
 import com.uvg.proyectoasignaciones.repository.CursoRepository;
 import com.uvg.proyectoasignaciones.repository.SeguimientoRepository;
 
+/**
+ * Pruebas unitarias para verificar el comportamiento de
+ * {@link AdministracionRestController} al actualizar estados de secciones,
+ * validar entradas y notificar a estudiantes con seguimiento activo.
+ */
 @ExtendWith(MockitoExtension.class)
 class AdministracionRestControllerTests {
 
@@ -38,6 +43,10 @@ class AdministracionRestControllerTests {
     private Curso curso;
     private Seccion seccion;
 
+    /**
+     * Inicializa el controlador con dependencias simuladas y crea un curso con
+     * una sección base en estado pendiente antes de cada prueba.
+     */
     @BeforeEach
     void preparar() {
         controller = new AdministracionRestController(
@@ -52,6 +61,12 @@ class AdministracionRestControllerTests {
         curso.agregarSeccion(seccion);
     }
 
+    /**
+     * Construye una solicitud de actualización de estado con el valor indicado.
+     *
+     * @param estado nuevo estado a asignar en la solicitud
+     * @return instancia de {@link AdministracionRestController.SolicitudEstado}
+     */
     private AdministracionRestController.SolicitudEstado solicitud(
             String estado) {
         AdministracionRestController.SolicitudEstado solicitud =
@@ -60,6 +75,10 @@ class AdministracionRestControllerTests {
         return solicitud;
     }
 
+    /**
+     * Verifica que se rechace una solicitud con estado vacío devolviendo {@code 400 Bad Request}
+     * sin consultar ni modificar los repositorios o notificaciones.
+     */
     @Test
     void rechazaEstadoVacio() {
         ResponseEntity<?> respuesta =
@@ -71,6 +90,10 @@ class AdministracionRestControllerTests {
                 notificacionController);
     }
 
+    /**
+     * Verifica que se rechace un estado no permitido devolviendo {@code 400 Bad Request}
+     * y manteniendo el estado original de la sección sin guardar cambios.
+     */
     @Test
     void rechazaEstadoNoPermitido() {
         when(cursoRepository.findById("CC2005"))
@@ -86,6 +109,9 @@ class AdministracionRestControllerTests {
         verifyNoInteractions(seguimientoRepository, notificacionController);
     }
 
+    /**
+     * Verifica que se devuelva {@code 404 Not Found} cuando el curso indicado no existe.
+     */
     @Test
     void rechazaCursoInexistente() {
         when(cursoRepository.findById("NOEXISTE"))
@@ -98,6 +124,10 @@ class AdministracionRestControllerTests {
         assertEquals(HttpStatus.NOT_FOUND, respuesta.getStatusCode());
     }
 
+    /**
+     * Verifica que se devuelva {@code 404 Not Found} cuando la sección no existe dentro
+     * del curso consultado y no se guarde el curso.
+     */
     @Test
     void rechazaSeccionInexistente() {
         when(cursoRepository.findById("CC2005"))
@@ -111,6 +141,10 @@ class AdministracionRestControllerTests {
         verify(cursoRepository, never()).save(any());
     }
 
+    /**
+     * Verifica que si el estado enviado es igual al estado actual no se guarde
+     * ni se envíen notificaciones.
+     */
     @Test
     void noNotificaSiEstadoNoCambia() {
         when(cursoRepository.findById("CC2005"))
@@ -125,6 +159,10 @@ class AdministracionRestControllerTests {
         verifyNoInteractions(seguimientoRepository, notificacionController);
     }
 
+    /**
+     * Verifica que al cambiar a un estado válido se actualice la sección, se guarde el curso
+     * y se notifique a los estudiantes con seguimiento activo.
+     */
     @Test
     void actualizaEstadoYNotificaSeguidores() {
         Estudiante estudiante = new Estudiante(

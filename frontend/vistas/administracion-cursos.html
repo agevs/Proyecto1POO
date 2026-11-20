@@ -23,8 +23,7 @@
     flex-wrap: wrap;
     gap: 18px;
     padding: 16px 20px;
-    background: #293b4d;
-    color: white;
+    background: var(--uvg-dark-green, #175d3c);    color: white;
     border-radius: 8px;
     margin-bottom: 28px;
 }
@@ -36,7 +35,60 @@
 }
 .navegacion-admin a:hover,
 .navegacion-admin a[aria-current="page"] {
-    background: #198754;
+    background: var(--uvg-green, #208454);
+}
+/* Entrega 6: mejoras visuales administrativas */
+
+.navegacion-admin {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.navegacion-admin a {
+    transition: background-color 0.2s ease;
+}
+
+main > h1,
+main > h2 {
+    color: var(--uvg-dark-green, #175d3c);
+}
+
+/* Formularios administrativos */
+main form {
+    background-color: #ffffff;
+    border: 1px solid #dce8e0;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+main input,
+main select {
+    border: 1px solid #b8cfc1;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #333333;
+}
+
+main input:focus,
+main select:focus {
+    outline: 2px solid var(--uvg-green, #208454);
+    outline-offset: 1px;
+}
+
+/* Botones administrativos */
+main form button {
+    background-color: var(--uvg-green, #208454);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+main form button:hover {
+    background-color: var(--uvg-dark-green, #175d3c);
 }
 </style>
 </head>
