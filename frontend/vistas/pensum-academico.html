@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pensum académico - UVG</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f5;
+            color: #263238;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: auto;
+            padding: 24px;
+        }
+
+        h1,
+        h2 {
+            color: #1e8057;
+        }
+
+        a {
+            color: #1e8057;
+        }
+
+        .semestre {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        details {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #estado {
+            padding: 12px 0;
+        }
+    </style>
+    <script src="../js/pensum.js" defer></script>
+</head>
+
+<body>
+    <main>
+        <a href="dashboard-asignacion.html">← Volver a asignación de cursos</a>
+
+        <h1>Pensum académico</h1>
+        <p>Ingeniería en Ciencia de la Computación y Tecnologías de la Información</p>
+        <p>Selecciona un curso para consultar sus detalles.</p>
+
+        <p id="estado" role="status">Cargando cursos…</p>
+        <div id="pensum"></div>
+    </main>
+</body>
+
+</html>

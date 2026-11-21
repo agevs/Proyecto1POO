@@ -2,7 +2,7 @@
     --uvg-green: #208454;
     --uvg-dark-green: #175d3c;
     --uvg-bg-light: #f4f6f5;
-    --uvg-sidebar: #2c3e50;
+    --uvg-sidebar: #175d3c;
     --text-main: #333333;
     --border-color: #dcdcdc;
 
@@ -111,8 +111,8 @@ body {
 }
 
 .table-custom th {
-    background-color: #4a777a; /* Tono de cabecera de catálogo UVG */
-    color: white;
+    background-color: var(--uvg-dark-green);
+    color: #ffffff;
 }
 
 .table-custom td small {
@@ -183,13 +183,20 @@ body {
     border: 0;
     border-bottom: 3px solid transparent;
     background: transparent;
-    color: #666;
+    color: var(--text-main);
     font: inherit;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.catalogo-tab:hover {
+    color: var(--uvg-dark-green);
+    border-bottom-color: var(--uvg-green);
 }
 
 .catalogo-tab-activa {
     border-bottom-color: var(--uvg-green);
-    color: var(--text-main);
+    color: var(--uvg-dark-green);
     font-weight: bold;
 }
 
@@ -244,4 +251,144 @@ body {
     text-align: center;
     padding: 20px;
     font-weight: 500;
+}
+
+
+/* ENTREGA 05: MEJORAS DE COLORES INSTITUCIONALES */
+
+/* Botones secundarios */
+.table-custom .btn-ver-ficha {
+    border-color: var(--uvg-green);
+    background-color: #eaf5ee;
+    color: var(--uvg-dark-green);
+}
+
+.table-custom .btn-ver-ficha:hover {
+    background-color: #d6ecdf;
+    border-color: var(--uvg-dark-green);
+}
+
+/* Botones de notificaciones */
+.btn-marcar-leida:hover {
+    background-color: #eaf5ee;
+    border-color: var(--uvg-dark-green);
+}
+
+/* Tarjetas de notificaciones */
+.alerta {
+    background-color: #ffffff;
+    border-color: #d5e5da;
+}
+
+.alerta-no-leida {
+    background-color: #eaf5ee;
+    border-left-color: var(--uvg-green);
+}
+
+/* Campos de formularios */
+input,
+select,
+textarea {
+    border-color: #b7d4c1;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--uvg-green);
+    outline-offset: 2px;
+}
+
+/* Accesibilidad de botones */
+button:focus-visible {
+    outline: 2px solid var(--uvg-dark-green);
+    outline-offset: 3px;
+}
+/* Navegacion uniforme del estudiante */
+.menu-estudiante {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-estudiante li {
+    margin: 0 0 6px;
+    padding: 0;
+}
+
+.menu-estudiante .menu-enlace {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: white;
+    border: 0;
+    border-radius: 5px;
+    text-align: left;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.menu-estudiante .menu-enlace:hover,
+.menu-estudiante .menu-enlace:focus-visible {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.menu-estudiante .menu-enlace.activo {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.menu-estudiante .menu-enlace[hidden] {
+    display: none;
+}
+
+/* Correccion visual del menu estudiantil */
+#dashboard-view .menu-estudiante {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 0;
+}
+
+#dashboard-view .menu-estudiante li {
+    margin: 0 0 8px;
+    padding: 0;
+}
+
+#dashboard-view .menu-estudiante .menu-enlace {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    margin: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #ffffff;
+    text-decoration: none;
+    text-align: left;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+#dashboard-view .menu-estudiante .menu-enlace.activo {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+#dashboard-view .menu-estudiante .menu-enlace:hover,
+#dashboard-view .menu-estudiante .menu-enlace:focus-visible {
+    background: #208454;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#dashboard-view .menu-estudiante .menu-enlace[hidden] {
+    display: none;
 }
